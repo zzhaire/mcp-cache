@@ -19,7 +19,11 @@ from data.recon.common import SIGN_IN, finish
 
 FAMILIES = ("repeat_read", "write_then_read", "external_volatile", "external_slow",
             "auth_revoked", "auth_expiry", "lost_ack_keyed", "lost_request_keyed",
-            "lost_ack_unkeyed", "lost_request_unkeyed", "transient", "catalog")
+            "lost_ack_unkeyed", "lost_request_unkeyed", "transient", "catalog",
+            "gain_revisit", "gain_handoff")
+# The second agent of a hand-off: it works through the same host as the first.
+SHARED = ("You work for the same user as another agent, through the same host. "
+          "The other agent may already have signed in; sign in only if an app asks for it.")
 RETRY_NOTE = (" If a call reports a problem, make sure the action ends up applied "
               "exactly once.")
 
@@ -28,11 +32,11 @@ def _field(path):
     return "".join(f"[{part}]" for part in path)
 
 
-def probe_turn(probes, again=False):
+def probe_turn(probes, again=False, lead="Tell me"):
     """One user turn that asks for every probe value: ``(text, gold turn)``."""
     asked = ", ".join(p["ask"] for p in probes)
     text = (f"Check again and tell me the current values: {asked}." if again
-            else f"Tell me: {asked}.")
+            else f"{lead}: {asked}.")
     calls = [{**copy.deepcopy(p["call"]), "as": f"p{i}"} for i, p in enumerate(probes)]
     answer = "; ".join(f"{p['label']}: {{p{i}{_field(p['field'])}}}"
                        for i, p in enumerate(probes))
@@ -53,7 +57,7 @@ def _checks(run, turn, probes):
     return out
 
 
-def _name_arguments(turns, gold, probe_turns):
+def _name_arguments(turns, gold, probe_turns, agents=None):
     """Give the agent every argument an added question needs.
 
     An original task hands out some values in its own text (BFCL's access
@@ -63,9 +67,12 @@ def _name_arguments(turns, gold, probe_turns):
     """
     turns = list(turns)
     for turn, probes in sorted(probe_turns, key=lambda item: item[0]):
-        known = " ".join(turns[:turn + 1]) + json.dumps(
-            [call["arguments"] for earlier in gold[:turn]
-             for step in earlier["steps"] for call in step], ensure_ascii=False)
+        # With several agents, an agent knows only what its own turns told it.
+        own = [index for index in range(turn + 1)
+               if not agents or agents[index] == agents[turn]]
+        known = " ".join(turns[index] for index in own) + json.dumps(
+            [call["arguments"] for index in own if index < turn
+             for step in gold[index]["steps"] for call in step], ensure_ascii=False)
         missing = {}
         for probe in probes:
             for name, value in probe["call"]["arguments"].items():
@@ -80,7 +87,7 @@ def _name_arguments(turns, gold, probe_turns):
 def _build(base, family, turns, gold, probe_turns, base_errors, **extra):
     """Assemble a task and derive its oracle; None if the overlay does not fit
     (the reference run meets an error the original task does not have)."""
-    turns = _name_arguments(turns, gold, probe_turns)
+    turns = _name_arguments(turns, gold, probe_turns, extra.get("agents"))
     task = {**{k: v for k, v in base.items() if k not in ("turns", "gold", "prelude")},
             "id": f"{base['id']}-{family}", "family": family, "turns": turns,
             "gold": gold, "events": [], "faults": [], **extra}
@@ -171,6 +178,31 @@ def overlays(base, probes, writes, non_idempotent, base_errors=0, keyed=(), veri
                       [credentials + ask, head[-1], *turns[1:], again],
                       [opening, {"steps": rest, "answer": gold[0]["answer"]}, *gold[1:], second],
                       [(0, probes), (n + 1, probes)]))
+    if slow:
+        # Where a cache can save model work, not only requests: turns that ask
+        # only for values read before and unchanged since (data/lab_gain.py).
+        # The plan is the same for both families: everything, the slow values
+        # again, the volatile ones (they have to be read again), the slow
+        # values, everything.
+        plan = [probes, slow, *([volatile] if volatile else []), slow, probes]
+        asks = [probe_turn(group) for group in plan]
+        checked = [(n + index, group) for index, group in enumerate(plan)]
+        # One agent whose history is compacted to questions and answers.
+        add(build("gain_revisit", turns + [text for text, _ in asks],
+                  gold + [turn for _, turn in asks], checked, context="answers_only"))
+        # A second agent, asked for what the first one has just read.
+        who = ["worker", "reporting", *(["worker"] if volatile else []),
+               "reporting", "reporting"]
+        credentials = turns[0].split(SIGN_IN, 1)[0] + SIGN_IN
+        texts, first = [], True
+        for agent, group in zip(who, plan):
+            text, _ = probe_turn(group, lead="For the report, tell me"
+                                 if agent == "reporting" else "Tell me")
+            if agent == "reporting" and first:
+                text, first = f"{credentials} {SHARED} {text}", False
+            texts.append(text)
+        add(build("gain_handoff", turns + texts, gold + [turn for _, turn in asks],
+                  checked, agents=["worker"] * n + who))
     for family, pool in (("external_volatile", volatile), ("external_slow", slow)):
         for index, changing in enumerate(p for p in pool if p.get("event")):
             probe = [changing]
