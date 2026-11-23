@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import json
 import keyword
+import os
 import re
 from pathlib import Path
 import socket
@@ -179,6 +180,14 @@ RELAY_NOTE = ("" if MODEL_BACKEND != "claude" else
               "addresses come only from the user's messages and from tool results. ")
 
 
+# Every arm is told not to repeat a read whose result the conversation already
+# shows. MCP_NO_REUSE_HINT=1 leaves that sentence out, to see how much of an
+# agent's reuse of a value it read earlier comes from being told so.
+REUSE_HINT = ("" if os.environ.get("MCP_NO_REUSE_HINT") == "1" else
+              "If a tool result for the same tool and arguments is already present "
+              "in this conversation, do not call it again unless you have evidence "
+              "the state changed or the user explicitly asks you to re-confirm that "
+              "exact read. ")
 COMPACTED = {"role": "system", "content":
              "Earlier turns are kept as question and answer only; their tool results "
              "are no longer in this conversation."}
@@ -427,16 +436,21 @@ def run_task(dataset, task_id, model, method, output_dir, max_steps=16, policy=N
         # what the host itself remembers (its caches) is the arm's business.
         compact = lab and info.get("context") == "answers_only"
         agents = info.get("agents") if lab else None
-        histories = {}
+        histories, last_blocks, speaker = {}, {}, None
         for turn_index, question in enumerate(turns):
             if compact or agents:
-                messages = histories.setdefault(agents[turn_index] if agents else None, [])
+                last_blocks[speaker] = last_block
+                speaker = agents[turn_index] if agents else None
+                messages = histories.setdefault(speaker, [])
                 # Nothing shown earlier counts as visible to this decision maker.
                 visible_identities.clear()
                 visible_versions.clear()
                 seen_results.clear()
                 seen_large.clear()
-                last_block = ""
+                # An agent's own conversation still holds the last runtime block
+                # it was given: when nothing in it is current any more, that
+                # agent has to be told. A compacted history holds no block.
+                last_block = "" if compact else last_blocks.get(speaker, "")
             turn_start = len(messages)
             if compact and messages and messages[0] is not COMPACTED:
                 messages.insert(0, COMPACTED)
@@ -486,10 +500,8 @@ def run_task(dataset, task_id, model, method, output_dir, max_steps=16, policy=N
                     "assume a tool failed unless its own result reports an error. "
                     "Every call uses literal JSON arguments. You may call several tools "
                     "only when their arguments are already known. Do not invent results. "
-                    "If a tool result for the same tool and arguments is already present "
-                    "in this conversation, do not call it again unless you have evidence "
-                    "the state changed or the user explicitly asks you to re-confirm that "
-                    "exact read. Messages with role 'runtime' come from the host, not from "
+                    + REUSE_HINT +
+                    "Messages with role 'runtime' come from the host, not from "
                     "the user: the latest one replaces all earlier ones. Read results listed "
                     "there are current for the published state; use their values instead of "
                     "calling again when they answer the question, and call the tool when a "
