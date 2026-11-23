@@ -157,6 +157,9 @@ def overlays(base, probes, writes, non_idempotent, base_errors=0, keyed=(), veri
 
     def add(task):
         if task is not None:
+            # For the judge: only a write whose second application changes the
+            # outcome counts as repeated (not moving to a directory twice).
+            task["overlay"]["non_idempotent"] = sorted(non_idempotent)
             out.append(task)
 
     def build(family, turns, gold, probe_turns, **extra):

@@ -76,13 +76,15 @@ def probes(task):
          # The customer keeps using data.
          "event": {"kind": "add", "path": ["crm", "lines", {"line_id": line}, "data_used_gb"],
                    "value": 0.5}},
+        # A value only the line's own record holds: the usage read (volatile)
+        # does not return it, so an agent cannot get it by another route.
         {"call": {"name": "get_details_by_id", "arguments": {"id": line}},
-         "field": ["data_refueling_gb"], "label": "refueled", "fresh": "slow", "app": "crm",
-         "ask": f"how many GB of extra data line {line} has been given",
-         # A colleague adds data to the line from another console.
-         "event": {"kind": "add",
-                   "path": ["crm", "lines", {"line_id": line}, "data_refueling_gb"],
-                   "value": 1.0}},
+         "field": ["contract_end_date"], "label": "contract", "fresh": "slow", "app": "crm",
+         "ask": f"the date the contract of line {line} ends",
+         # A colleague extends the contract from another console.
+         "event": {"kind": "set",
+                   "path": ["crm", "lines", {"line_id": line}, "contract_end_date"],
+                   "value": "2027-06-30"}},
         {"call": {"name": "check_status_bar", "arguments": {}},
          "field": [], "label": "bar", "fresh": "volatile", "app": "device",
          "ask": "what the phone's status bar shows",

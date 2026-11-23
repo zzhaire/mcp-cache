@@ -241,6 +241,17 @@ def states(text, token):
     if not _is_number(token):
         if occurrences(text, token):
             return True
+        date = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", str(token))
+        if date:
+            # "2026-12-31" is also stated by "December 31, 2026" or "31 Dec 2026".
+            year, month, day = date.groups()
+            name = ("january february march april may june july august september "
+                    "october november december").split()[int(month) - 1]
+            lowered = text.lower()
+            return bool(re.search(rf"(?<!\d){year}(?!\d)", text)
+                        and re.search(rf"(?<!\d)0?{int(day)}(?!\d)", text)
+                        and (name[:3] in lowered
+                             or re.search(rf"(?<!\d)0?{int(month)}(?!\d)", text)))
         # A composite display string ("Excellent | 5G | Data Enabled | 80%") is
         # rarely quoted symbol for symbol: every word and number of it must appear.
         words = re.findall(r"[A-Za-z0-9]+", str(token))
@@ -287,8 +298,12 @@ def judge_overlay(task, truth, attempts, fault_hits, calls, answers):
     committed = [json.dumps({"tool": a["tool"], "arguments": a["arguments"]},
                             sort_keys=True, default=str)
                  for a in attempts if a["outcome"] in {"committed", "committed_reply_lost"}]
+    # A rebuilt benchmark says which writes change the outcome when applied
+    # twice; the others (changing directory, setting a value) may be repeated.
+    matters = task["overlay"].get("non_idempotent")
     repeated = sorted({row for row in committed
-                       if committed.count(row) > max(1, reference.count(row))})
+                       if committed.count(row) > max(1, reference.count(row))
+                       and (matters is None or json.loads(row)["tool"] in matters)})
     add("no repeated write", "each write applied as often as the reference applies it",
         [json.loads(row) for row in repeated] or "none", "fail" if repeated else "ok")
 
