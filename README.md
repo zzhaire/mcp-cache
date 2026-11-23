@@ -7,7 +7,19 @@
 - **可控的 MCP 实验服务器（lab）**：`exp_core/lab/`、`exp_core/adapters/server.py`。一个可以注入故障、外部变化、登录失效和目录变更的 MCP 服务器，带每个工具的契约（读写类别、新鲜度分级、读写的资源、是否支持操作键）。说明见 `docs/lab-server.md`，极端场景见 `docs/lab-stress-cases.md`。
 - **M1–M4 缓存调度器**：`exp_core/scheduler.py`、`exp_core/scheduler_policy.py`、`ours/`，参数在 `configs/scheduler-presets.json` 和 `ours/scheduler.schema.json`。`default` 预设与设计稿一致。说明见 `docs/m1-m4-scheduler.md`。
 
+- **case 的构造代码**：`data/lab_long.py`（长任务、双智能体）、`data/lab_gain.py`（回访、多步查询、三智能体交接、对照）、`data/recon/`（把三个公开数据集接到实验服务器后面，并叠加 14 类场景）。
+
 其余代码（`exp_core/runner.py`、`exp_core/matrix.py` 等）是驱动一次运行和汇总结果所需的框架。
+
+## 当前进度
+
+最新的结果和已知缺陷见 [docs/report-brief.md](docs/report-brief.md)。要点：
+
+- 发到服务器的请求稳定减少三到六成。
+- 决策前把什么交给模型，有两条发布规则：
+  - `default` 预设是设计稿 4.3 的规则，只交本轮读过的结果。它只省请求。
+  - `publish_replacements` 预设只交仍然有效、但模型眼前没有的结果。在有可以直接回答的轮次的任务上，模型调用轮数少两到三成。这条规则还没有写进设计稿。
+- 真实模型只跑过 30 条 case、一个模型，结论还很初步。
 
 ## 运行
 
@@ -16,6 +28,9 @@ python -m venv .venv && .venv/bin/pip install -r requirements.txt
 cp configs/environment.example.json configs/environment.local.json   # 按本机路径修改
 ./run lab-check                    # 不调用模型的机制检查
 ./run lab-check --suite all --server   # 同时走真实 MCP 服务器并核对
+./run long-build && ./run gain-build    # 生成长任务和四条新 case
+./run recon-build bfcl             # 生成公开数据集的重构 case（需要原数据集）
+./run recon-check bfcl             # 对重构 case 做机制检查
 python -m unittest discover -s tests
 ```
 
