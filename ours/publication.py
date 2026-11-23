@@ -404,6 +404,10 @@ def collect_operations(runtime, limit=20, budget_bytes=None, failure_form="verba
         state = record.get("state")
         if state not in {"failed", "uncertain"}:
             continue
+        if record.get("error_code") == "invalid_arguments":
+            # A malformed request is not a fact about the tool or the data: an
+            # agent shown it tends to give up on the tool altogether.
+            continue
         if _scheduled(runtime):
             # Tag-versioned conditions replace the global epochs.
             if not runtime.operation_current(record):

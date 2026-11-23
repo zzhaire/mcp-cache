@@ -527,6 +527,14 @@ class Scheduler:
                 "idempotent": bool(meta.get("idempotency_key")),
                 "shadow_fetch": meta.get("shadow_fetch")}
 
+    def _depends_on(self, info, readonly):
+        """The tags a remembered outcome of this call stands on. A refused write
+        was refused because of the state it would have changed: once another
+        write touches that state (the file now exists), the refusal is history."""
+        if readonly:
+            return info["read_tags"]
+        return set(info["read_tags"]) | set(self._write_tags(info, unknown=False))
+
     def _write_tags(self, meta, unknown):
         granularity = self.policy["invalidation"]["granularity"]
         if granularity == "resource" and not meta["affects"]:
@@ -708,7 +716,7 @@ class Scheduler:
             "error_code": None, "outcome": None,
             "history": copy.deepcopy((old or {}).get("history", [])),
             "request": {"name": name, "arguments": copy.deepcopy(arguments)},
-            "_cond": self._snapshot(info["read_tags"]),
+            "_cond": self._snapshot(self._depends_on(info, readonly)),
             "_auth": self._snapshot(info["auth_tags"]),
             "_server": info["server"], "_tool": info["tool"], "_step": self.step}
         start = self.clock()
@@ -733,7 +741,7 @@ class Scheduler:
                 # host believed about the state it touches is suspect.
                 self._bump(self._write_tags(info, unknown=False))
                 # The refusal itself is the newest thing known about that state.
-                record["_cond"] = self._snapshot(info["read_tags"])
+                record["_cond"] = self._snapshot(self._depends_on(info, readonly))
             record.update(state="uncertain" if uncertain else "failed",
                           outcome=outcome, updated_at=self.clock(),
                           error_code=(error.code if isinstance(error, AccessFailure)

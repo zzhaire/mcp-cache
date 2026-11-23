@@ -60,7 +60,7 @@ class Worlds(unittest.TestCase):
         self.assertTrue(made["ok"], made)
         wrong = world.invoke("create_ticket", {"title": "t", "colour": "red"},
                              credentials=tokens)
-        self.assertEqual(wrong["error_code"], "business_error")
+        self.assertEqual(wrong["error_code"], "invalid_arguments")
 
     def test_a_refusal_of_the_backend_is_a_business_error(self):
         world = make_world(base())
@@ -404,3 +404,43 @@ class GainCases(unittest.TestCase):
                     harness.Backend.invoke, harness.TurnScript.answer = invoke, answer
                 self.assertEqual(run["oracle"]["verdict"], "pass", task_id)
                 self.assertEqual(sum(count == 0 for count in reached[:-1]), expected, task_id)
+
+
+class RefusalsFollowTheState(unittest.TestCase):
+    """Found on BFCL with a real model: ``echo`` into a file that does not
+    exist is refused, ``touch`` creates the file, and the same ``echo`` must
+    then reach the server instead of being answered with the old refusal."""
+
+    def test_a_refused_write_is_sent_again_after_another_write_touched_its_state(self):
+        from exp_core.runtime import AccessFailure
+        from exp_core import runner
+        from exp_core.lab.harness import build_runtime
+        runtime = build_runtime(runner.resolve_policy("ours", {"scheduler": "default"}))
+        meta = {"app": "fs", "kind": "write", "affects": ["fs/tree"]}
+        sent = []
+
+        def refuse():
+            sent.append("echo")
+            raise AccessFailure("business_error", outcome="not_executed", detail="no such file")
+
+        with self.assertRaises(AccessFailure):
+            runtime.call("echo", {"file": "a"}, refuse, operation_id="1", scope="s", meta=meta)
+        runtime.call("touch", {"file": "a"}, lambda: None, operation_id="2", scope="s", meta=meta)
+        runtime.call("echo", {"file": "a"}, lambda: sent.append("echo") or "ok",
+                     operation_id="3", scope="s", meta=meta)
+        self.assertEqual(sent, ["echo", "echo"])
+
+    def test_a_malformed_request_is_not_published_as_a_failed_operation(self):
+        from ours.publication import collect_operations
+        from exp_core.runtime import AccessFailure
+        from exp_core import runner
+        from exp_core.lab.harness import build_runtime
+        runtime = build_runtime(runner.resolve_policy("ours", {"scheduler": "default"}))
+
+        def malformed():
+            raise AccessFailure("invalid_arguments", outcome="not_executed", detail="bad")
+
+        with self.assertRaises(AccessFailure):
+            runtime.call("show_volume", {"arguments": "{}"}, malformed, readonly=True,
+                         operation_id="1", scope="s", meta={"app": "spotify", "kind": "read"})
+        self.assertEqual(collect_operations(runtime), [])

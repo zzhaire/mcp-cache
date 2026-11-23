@@ -414,7 +414,9 @@ class LabWorld:
             return self._fail("unknown_tool", error=f"no tool named {name}")
         problem = self._invalid(name, spec, arguments)
         if problem:
-            return self._fail("business_error", error=problem)
+            # The request itself is malformed: this says nothing about the
+            # service's state, unlike a refusal for a business reason.
+            return self._fail("invalid_arguments", error=problem)
         self._shadow = shadow
         self._present(credentials)
         if not shadow:

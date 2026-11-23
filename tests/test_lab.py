@@ -111,9 +111,9 @@ class World(unittest.TestCase):
             reply = w.invoke("bank_transfer", {"source": "checking", "target": "rent",
                                                "amount": amount})
             self.assertEqual((reply["error_code"], reply["outcome"]),
-                             ("business_error", "not_executed"), amount)
+                             ("invalid_arguments", "not_executed"), amount)
         self.assertEqual(w.invoke("bank_get_balance", {"account": ["x"]})["error_code"],
-                         "business_error")
+                         "invalid_arguments")
         self.assertEqual(w.bank["accounts"]["checking"]["balance"], 500)
         self.assertFalse(w.invoke("auth_login", {"app": "bank", "username": "ghost",
                                                  "password": "x"})["ok"])
@@ -397,7 +397,7 @@ class ErrorDetail(unittest.TestCase):
                 access.call("bank_transfer", {"source": "checking", "target": "rent",
                                               "amount": "100"}, "op-2")
             shown = failure_result(caught.exception, "op-2")
-            self.assertEqual(shown["error"], "business_error")
+            self.assertEqual(shown["error"], "invalid_arguments")
             self.assertIn("finite number", shown["detail"])
             self.assertEqual(shown["operation_id"], "op-2")
 
