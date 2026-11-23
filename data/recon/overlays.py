@@ -13,6 +13,7 @@ Probe: ``{"call": {"name", "arguments"}, "field": <key path in the result>,
 "fresh": "slow" | "volatile", "event": <external change, optional>}``.
 """
 import copy
+import json
 
 from data.recon.common import SIGN_IN, finish
 
@@ -52,9 +53,34 @@ def _checks(run, turn, probes):
     return out
 
 
+def _name_arguments(turns, gold, probe_turns):
+    """Give the agent every argument an added question needs.
+
+    An original task hands out some values in its own text (BFCL's access
+    token). A question placed before that text, or in a task whose text never
+    states the value, would ask for something the agent cannot look up. A value
+    the reference solution has already used in an earlier turn counts as known.
+    """
+    turns = list(turns)
+    for turn, probes in sorted(probe_turns, key=lambda item: item[0]):
+        known = " ".join(turns[:turn + 1]) + json.dumps(
+            [call["arguments"] for earlier in gold[:turn]
+             for step in earlier["steps"] for call in step], ensure_ascii=False)
+        missing = {}
+        for probe in probes:
+            for name, value in probe["call"]["arguments"].items():
+                if isinstance(value, str) and value not in known:
+                    missing[name] = value
+        if missing:
+            turns[turn] += " Use " + ", ".join(
+                f"{name} '{value}'" for name, value in sorted(missing.items())) + "."
+    return turns
+
+
 def _build(base, family, turns, gold, probe_turns, base_errors, **extra):
     """Assemble a task and derive its oracle; None if the overlay does not fit
     (the reference run meets an error the original task does not have)."""
+    turns = _name_arguments(turns, gold, probe_turns)
     task = {**{k: v for k, v in base.items() if k not in ("turns", "gold", "prelude")},
             "id": f"{base['id']}-{family}", "family": family, "turns": turns,
             "gold": gold, "events": [], "faults": [], **extra}
