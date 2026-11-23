@@ -69,6 +69,7 @@ def scripted_agent(task):
 
 SUITES = {"basic": ["lab-cases.json"], "stress": ["lab-stress-cases.json"],
           "long": ["lab-long-cases.json"],
+          "gain": ["lab-gain-cases.json"],
           "heldout": ["lab-heldout-cases.json"],
           "all": ["lab-cases.json", "lab-stress-cases.json"]}
 

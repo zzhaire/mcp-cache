@@ -1,0 +1,43 @@
+{
+ "version": "lab-gain-cases-v0",
+ "suite": "lab",
+ "note": "为模型侧开销设计的四条：回访、多步查询、三智能体交接、无可复用内容的对照。由 data/lab_gain.py 生成。",
+ "cases": [
+  {
+   "case_id": "lab-gain-revisit",
+   "dataset": "lab",
+   "task_id": "lab-gain-revisit",
+   "scenario": "gain_revisit",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "lab-gain-chain",
+   "dataset": "lab",
+   "task_id": "lab-gain-chain",
+   "scenario": "gain_chain",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "lab-gain-handoff",
+   "dataset": "lab",
+   "task_id": "lab-gain-handoff",
+   "scenario": "gain_handoff",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "lab-gain-control",
+   "dataset": "lab",
+   "task_id": "lab-gain-control",
+   "scenario": "gain_control",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  }
+ ]
+}

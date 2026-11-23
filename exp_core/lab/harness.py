@@ -40,7 +40,8 @@ def load_tasks(path=TASKS_PATH):
     if path == TASKS_PATH:
         # Public benchmarks rebuilt on this server layer (data/recon).
         for extra in sorted([*path.parent.glob("recon-*-tasks.json"),
-                             *path.parent.glob("lab-long-tasks.json")]):
+                             *path.parent.glob("lab-long-tasks.json"),
+                             *path.parent.glob("lab-gain-tasks.json")]):
             tasks.update({task["id"]: task
                           for task in json.loads(extra.read_text(encoding="utf-8"))})
     return tasks

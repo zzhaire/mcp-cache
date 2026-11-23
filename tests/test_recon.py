@@ -366,3 +366,41 @@ class ForeignAddresses(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GainCases(unittest.TestCase):
+    """The cases of data/lab_gain.py: how many turns need no call at all is a
+    property of the task, and the control has none."""
+
+    WANT = {"lab-gain-revisit": 5, "lab-gain-chain": 3, "lab-gain-handoff": 4,
+            "lab-gain-control": 0}
+
+    def test_turns_that_need_no_call(self):
+        from exp_core import runner
+        from exp_core.lab import harness
+        tasks = harness.load_tasks()
+        for task_id, want in self.WANT.items():
+            reached = []
+            invoke = harness.Backend.invoke
+
+            def counted(backend, *args, _invoke=invoke, **kwargs):
+                reached[-1] += 1
+                return _invoke(backend, *args, **kwargs)
+
+            answer = harness.TurnScript.answer
+
+            def next_turn(script, *args, _answer=answer, **kwargs):
+                reached.append(0)
+                return _answer(script, *args, **kwargs)
+
+            for policy, expected in ((runner.resolve_policy("bare", None), 0),
+                                     (runner.resolve_policy("ours", {"scheduler": "default"}),
+                                      want)):
+                reached[:] = [0]
+                harness.Backend.invoke, harness.TurnScript.answer = counted, next_turn
+                try:
+                    run = harness.run_gold(tasks[task_id], policy, seed=0)
+                finally:
+                    harness.Backend.invoke, harness.TurnScript.answer = invoke, answer
+                self.assertEqual(run["oracle"]["verdict"], "pass", task_id)
+                self.assertEqual(sum(count == 0 for count in reached[:-1]), expected, task_id)

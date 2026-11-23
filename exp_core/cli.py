@@ -23,7 +23,8 @@ DELEGATES = {
 FUNCTIONS = {"recon-build": ("data.recon.check", "build"),
              "recon-check": ("data.recon.check", "check"),
              "recon-report": ("data.recon.check", "report"),
-             "long-build": ("data.lab_long", "main")}
+             "long-build": ("data.lab_long", "main"),
+             "gain-build": ("data.lab_gain", "main")}
 
 
 def profile_parser(profile):

@@ -1,0 +1,4800 @@
+[
+ {
+  "id": "lab-gain-revisit",
+  "family": "gain_revisit",
+  "note": "一个智能体、10 个 turn，历史被压缩。一半的 turn 回头问之前读过、之后没有变过的值。",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank and the shop. Tell me: the checking balance, the savings balance, the travel balance, the bills balance.",
+   "Tell me: the category of sku-pen, the category of sku-lamp, the category of sku-desk, the category of sku-chair, the EUR exchange rate, the GBP exchange rate.",
+   "Tell me: the checking balance, the savings balance, the EUR exchange rate.",
+   "Tell me: the category of sku-desk, the category of sku-chair, the travel balance.",
+   "Move 100 from checking to bills. Then: Tell me: the checking balance, the bills balance.",
+   "Tell me: the savings balance, the travel balance, the GBP exchange rate, the category of sku-lamp.",
+   "Tell me: the current price of sku-chair, the stock of sku-chair.",
+   "Tell me: the checking balance, the bills balance, the savings balance.",
+   "Order 1 of sku-lamp. Then: Tell me: the stock of sku-lamp.",
+   "One last round. Tell me: the checking balance, the savings balance, the travel balance, the bills balance, the EUR exchange rate, the GBP exchange rate, the category of sku-pen."
+  ],
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      },
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "p3"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; savings: {p1[balance]}; travel: {p2[balance]}; bills: {p3[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-pen"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p3"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "p4"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "GBP"
+       },
+       "as": "p5"
+      }
+     ]
+    ],
+    "answer": "sku-pen category: {p0[category]}; sku-lamp category: {p1[category]}; sku-desk category: {p2[category]}; sku-chair category: {p3[category]}; EUR: {p4[rate]}; GBP: {p5[rate]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "p2"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; savings: {p1[balance]}; EUR: {p2[rate]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "p2"
+      }
+     ]
+    ],
+    "answer": "sku-desk category: {p0[category]}; sku-chair category: {p1[category]}; travel: {p2[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "checking",
+        "target": "bills",
+        "amount": 100
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "p1"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; bills: {p1[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "GBP"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p3"
+      }
+     ]
+    ],
+    "answer": "savings: {p0[balance]}; travel: {p1[balance]}; GBP: {p2[rate]}; sku-lamp category: {p3[category]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p1"
+      }
+     ]
+    ],
+    "answer": "sku-chair price: {p0[price]}; sku-chair stock: {p1[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p2"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; bills: {p1[balance]}; savings: {p2[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-lamp",
+        "quantity": 1
+       }
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p0"
+      }
+     ]
+    ],
+    "answer": "sku-lamp stock: {p0[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "p3"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "p4"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "GBP"
+       },
+       "as": "p5"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-pen"
+       },
+       "as": "p6"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; savings: {p1[balance]}; travel: {p2[balance]}; bills: {p3[balance]}; EUR: {p4[rate]}; GBP: {p5[rate]}; sku-pen category: {p6[category]}"
+   }
+  ],
+  "events": [],
+  "faults": [],
+  "context": "answers_only",
+  "expected": {
+   "final_state": {
+    "balances": {
+     "bills": 180,
+     "bob-main": 900,
+     "checking": 400,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 7
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [
+     {
+      "quantity": 1,
+      "sku": "sku-lamp",
+      "status": "placed",
+      "unit_price": 40
+     }
+    ],
+    "transfers": [
+     {
+      "amount": 100,
+      "source": "checking",
+      "target": "bills"
+     }
+    ]
+   },
+   "write_log": [
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "checking",
+      "target": "bills",
+      "amount": 100
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-lamp",
+      "quantity": 1
+     }
+    }
+   ],
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      500
+     ],
+     "labels": {
+      "500": "checking"
+     }
+    },
+    {
+     "turn": 0,
+     "contains": [
+      1200
+     ],
+     "labels": {
+      "1200": "savings"
+     }
+    },
+    {
+     "turn": 0,
+     "contains": [
+      300
+     ],
+     "labels": {
+      "300": "travel"
+     }
+    },
+    {
+     "turn": 0,
+     "contains": [
+      80
+     ],
+     "labels": {
+      "80": "bills"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      "office"
+     ],
+     "labels": {
+      "office": "sku-pen category"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      "home"
+     ],
+     "labels": {
+      "home": "sku-lamp category"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      "home"
+     ],
+     "labels": {
+      "home": "sku-desk category"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      "office"
+     ],
+     "labels": {
+      "office": "sku-chair category"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      0.9
+     ],
+     "labels": {
+      "0.9": "EUR"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      0.8
+     ],
+     "labels": {
+      "0.8": "GBP"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      500
+     ],
+     "labels": {
+      "500": "checking"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      1200
+     ],
+     "labels": {
+      "1200": "savings"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      0.9
+     ],
+     "labels": {
+      "0.9": "EUR"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      "home"
+     ],
+     "labels": {
+      "home": "sku-desk category"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      "office"
+     ],
+     "labels": {
+      "office": "sku-chair category"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      300
+     ],
+     "labels": {
+      "300": "travel"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      400
+     ],
+     "labels": {
+      "400": "checking"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      180
+     ],
+     "labels": {
+      "180": "bills"
+     }
+    },
+    {
+     "turn": 5,
+     "contains": [
+      1200
+     ],
+     "labels": {
+      "1200": "savings"
+     }
+    },
+    {
+     "turn": 5,
+     "contains": [
+      300
+     ],
+     "labels": {
+      "300": "travel"
+     }
+    },
+    {
+     "turn": 5,
+     "contains": [
+      0.8
+     ],
+     "labels": {
+      "0.8": "GBP"
+     }
+    },
+    {
+     "turn": 5,
+     "contains": [
+      "home"
+     ],
+     "labels": {
+      "home": "sku-lamp category"
+     }
+    },
+    {
+     "turn": 6,
+     "contains": [
+      60
+     ],
+     "labels": {
+      "60": "sku-chair price"
+     }
+    },
+    {
+     "turn": 6,
+     "contains": [
+      20
+     ],
+     "labels": {
+      "20": "sku-chair stock"
+     }
+    },
+    {
+     "turn": 7,
+     "contains": [
+      400
+     ],
+     "labels": {
+      "400": "checking"
+     }
+    },
+    {
+     "turn": 7,
+     "contains": [
+      180
+     ],
+     "labels": {
+      "180": "bills"
+     }
+    },
+    {
+     "turn": 7,
+     "contains": [
+      1200
+     ],
+     "labels": {
+      "1200": "savings"
+     }
+    },
+    {
+     "turn": 8,
+     "contains": [
+      7
+     ],
+     "labels": {
+      "7": "sku-lamp stock"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      400
+     ],
+     "labels": {
+      "400": "checking"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      1200
+     ],
+     "labels": {
+      "1200": "savings"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      300
+     ],
+     "labels": {
+      "300": "travel"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      180
+     ],
+     "labels": {
+      "180": "bills"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      0.9
+     ],
+     "labels": {
+      "0.9": "EUR"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      0.8
+     ],
+     "labels": {
+      "0.8": "GBP"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      "office"
+     ],
+     "labels": {
+      "office": "sku-pen category"
+     }
+    }
+   ]
+  },
+  "overlay": {
+   "probes": [
+    {
+     "turn": 0,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 0,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 0,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "travel"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "travel"
+    },
+    {
+     "turn": 0,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "bills"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "bills"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-pen"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-pen category"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-lamp"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-lamp category"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-desk"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-desk category"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-chair"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-chair category"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "EUR"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "EUR"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "GBP"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "GBP"
+    },
+    {
+     "turn": 2,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 2,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 2,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "EUR"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "EUR"
+    },
+    {
+     "turn": 3,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-desk"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-desk category"
+    },
+    {
+     "turn": 3,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-chair"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-chair category"
+    },
+    {
+     "turn": 3,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "travel"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "travel"
+    },
+    {
+     "turn": 4,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 4,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "bills"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "bills"
+    },
+    {
+     "turn": 5,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 5,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "travel"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "travel"
+    },
+    {
+     "turn": 5,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "GBP"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "GBP"
+    },
+    {
+     "turn": 5,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-lamp"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-lamp category"
+    },
+    {
+     "turn": 6,
+     "call": {
+      "name": "shop_get_price",
+      "arguments": {
+       "sku": "sku-chair"
+      }
+     },
+     "field": [
+      "price"
+     ],
+     "label": "sku-chair price"
+    },
+    {
+     "turn": 6,
+     "call": {
+      "name": "shop_get_stock",
+      "arguments": {
+       "sku": "sku-chair"
+      }
+     },
+     "field": [
+      "stock"
+     ],
+     "label": "sku-chair stock"
+    },
+    {
+     "turn": 7,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 7,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "bills"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "bills"
+    },
+    {
+     "turn": 7,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 8,
+     "call": {
+      "name": "shop_get_stock",
+      "arguments": {
+       "sku": "sku-lamp"
+      }
+     },
+     "field": [
+      "stock"
+     ],
+     "label": "sku-lamp stock"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "travel"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "travel"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "bills"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "bills"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "EUR"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "EUR"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "GBP"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "GBP"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-pen"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-pen category"
+    }
+   ]
+  }
+ },
+ {
+  "id": "lab-gain-chain",
+  "family": "gain_chain",
+  "note": "一个智能体、8 个 turn，历史被压缩。问题用间接的说法指东西（我名下的账户、叫 Desk 的商品），要先读列表才能读到值。",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank and the shop. Tell me the balance of every bank account that belongs to me.",
+   "Tell me the category of the shop items named Desk and Chair.",
+   "Tell me the exchange rate of every currency the reference app lists.",
+   "Which of my bank accounts holds the most, and how much is in it?",
+   "Tell me the category of the shop item named Lamp, and the exchange rate of every listed currency.",
+   "Move 100 from savings to travel. Then tell me the balance of every bank account that belongs to me.",
+   "Tell me the category of the shop item named Desk and the exchange rates of the listed currencies.",
+   "One last round: the balance of every bank account that belongs to me, and the category of the shop items named Chair and Lamp."
+  ],
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      },
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_list_accounts",
+       "arguments": {}
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "p3"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; savings: {p1[balance]}; travel: {p2[balance]}; bills: {p3[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_list_items",
+       "arguments": {}
+      }
+     ],
+     [
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p1"
+      }
+     ]
+    ],
+    "answer": "sku-desk category: {p0[category]}; sku-chair category: {p1[category]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "ref_list_currencies",
+       "arguments": {}
+      }
+     ],
+     [
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "GBP"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "JPY"
+       },
+       "as": "p2"
+      }
+     ]
+    ],
+    "answer": "EUR: {p0[rate]}; GBP: {p1[rate]}; JPY: {p2[rate]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_list_accounts",
+       "arguments": {}
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p0"
+      }
+     ]
+    ],
+    "answer": "savings: {p0[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_list_items",
+       "arguments": {}
+      },
+      {
+       "name": "ref_list_currencies",
+       "arguments": {}
+      }
+     ],
+     [
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "GBP"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "JPY"
+       },
+       "as": "p3"
+      }
+     ]
+    ],
+    "answer": "sku-lamp category: {p0[category]}; EUR: {p1[rate]}; GBP: {p2[rate]}; JPY: {p3[rate]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "savings",
+        "target": "travel",
+        "amount": 100
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_list_accounts",
+       "arguments": {}
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "p3"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; savings: {p1[balance]}; travel: {p2[balance]}; bills: {p3[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_list_items",
+       "arguments": {}
+      },
+      {
+       "name": "ref_list_currencies",
+       "arguments": {}
+      }
+     ],
+     [
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "GBP"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "JPY"
+       },
+       "as": "p3"
+      }
+     ]
+    ],
+    "answer": "sku-desk category: {p0[category]}; EUR: {p1[rate]}; GBP: {p2[rate]}; JPY: {p3[rate]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_list_accounts",
+       "arguments": {}
+      },
+      {
+       "name": "shop_list_items",
+       "arguments": {}
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "p3"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p4"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p5"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; savings: {p1[balance]}; travel: {p2[balance]}; bills: {p3[balance]}; sku-chair category: {p4[category]}; sku-lamp category: {p5[category]}"
+   }
+  ],
+  "events": [],
+  "faults": [],
+  "context": "answers_only",
+  "expected": {
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1100,
+     "travel": 400
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": [
+     {
+      "amount": 100,
+      "source": "savings",
+      "target": "travel"
+     }
+    ]
+   },
+   "write_log": [
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "savings",
+      "target": "travel",
+      "amount": 100
+     }
+    }
+   ],
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      500
+     ],
+     "labels": {
+      "500": "checking"
+     }
+    },
+    {
+     "turn": 0,
+     "contains": [
+      1200
+     ],
+     "labels": {
+      "1200": "savings"
+     }
+    },
+    {
+     "turn": 0,
+     "contains": [
+      300
+     ],
+     "labels": {
+      "300": "travel"
+     }
+    },
+    {
+     "turn": 0,
+     "contains": [
+      80
+     ],
+     "labels": {
+      "80": "bills"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      "home"
+     ],
+     "labels": {
+      "home": "sku-desk category"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      "office"
+     ],
+     "labels": {
+      "office": "sku-chair category"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      0.9
+     ],
+     "labels": {
+      "0.9": "EUR"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      0.8
+     ],
+     "labels": {
+      "0.8": "GBP"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      150
+     ],
+     "labels": {
+      "150": "JPY"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      1200
+     ],
+     "labels": {
+      "1200": "savings"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      "home"
+     ],
+     "labels": {
+      "home": "sku-lamp category"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      0.9
+     ],
+     "labels": {
+      "0.9": "EUR"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      0.8
+     ],
+     "labels": {
+      "0.8": "GBP"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      150
+     ],
+     "labels": {
+      "150": "JPY"
+     }
+    },
+    {
+     "turn": 5,
+     "contains": [
+      500
+     ],
+     "labels": {
+      "500": "checking"
+     }
+    },
+    {
+     "turn": 5,
+     "contains": [
+      1100
+     ],
+     "labels": {
+      "1100": "savings"
+     }
+    },
+    {
+     "turn": 5,
+     "contains": [
+      400
+     ],
+     "labels": {
+      "400": "travel"
+     }
+    },
+    {
+     "turn": 5,
+     "contains": [
+      80
+     ],
+     "labels": {
+      "80": "bills"
+     }
+    },
+    {
+     "turn": 6,
+     "contains": [
+      "home"
+     ],
+     "labels": {
+      "home": "sku-desk category"
+     }
+    },
+    {
+     "turn": 6,
+     "contains": [
+      0.9
+     ],
+     "labels": {
+      "0.9": "EUR"
+     }
+    },
+    {
+     "turn": 6,
+     "contains": [
+      0.8
+     ],
+     "labels": {
+      "0.8": "GBP"
+     }
+    },
+    {
+     "turn": 6,
+     "contains": [
+      150
+     ],
+     "labels": {
+      "150": "JPY"
+     }
+    },
+    {
+     "turn": 7,
+     "contains": [
+      500
+     ],
+     "labels": {
+      "500": "checking"
+     }
+    },
+    {
+     "turn": 7,
+     "contains": [
+      1100
+     ],
+     "labels": {
+      "1100": "savings"
+     }
+    },
+    {
+     "turn": 7,
+     "contains": [
+      400
+     ],
+     "labels": {
+      "400": "travel"
+     }
+    },
+    {
+     "turn": 7,
+     "contains": [
+      80
+     ],
+     "labels": {
+      "80": "bills"
+     }
+    },
+    {
+     "turn": 7,
+     "contains": [
+      "office"
+     ],
+     "labels": {
+      "office": "sku-chair category"
+     }
+    },
+    {
+     "turn": 7,
+     "contains": [
+      "home"
+     ],
+     "labels": {
+      "home": "sku-lamp category"
+     }
+    }
+   ]
+  },
+  "overlay": {
+   "probes": [
+    {
+     "turn": 0,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 0,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 0,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "travel"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "travel"
+    },
+    {
+     "turn": 0,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "bills"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "bills"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-desk"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-desk category"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-chair"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-chair category"
+    },
+    {
+     "turn": 2,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "EUR"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "EUR"
+    },
+    {
+     "turn": 2,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "GBP"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "GBP"
+    },
+    {
+     "turn": 2,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "JPY"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "JPY"
+    },
+    {
+     "turn": 3,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 4,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-lamp"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-lamp category"
+    },
+    {
+     "turn": 4,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "EUR"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "EUR"
+    },
+    {
+     "turn": 4,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "GBP"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "GBP"
+    },
+    {
+     "turn": 4,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "JPY"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "JPY"
+    },
+    {
+     "turn": 5,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 5,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 5,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "travel"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "travel"
+    },
+    {
+     "turn": 5,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "bills"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "bills"
+    },
+    {
+     "turn": 6,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-desk"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-desk category"
+    },
+    {
+     "turn": 6,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "EUR"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "EUR"
+    },
+    {
+     "turn": 6,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "GBP"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "GBP"
+    },
+    {
+     "turn": 6,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "JPY"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "JPY"
+    },
+    {
+     "turn": 7,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 7,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 7,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "travel"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "travel"
+    },
+    {
+     "turn": 7,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "bills"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "bills"
+    },
+    {
+     "turn": 7,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-chair"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-chair category"
+    },
+    {
+     "turn": 7,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-lamp"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-lamp category"
+    }
+   ]
+  }
+ },
+ {
+  "id": "lab-gain-handoff",
+  "family": "gain_handoff",
+  "note": "三个智能体共用一个 Host。汇报智能体被问到的，是另外两个刚读过的值。",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank. Tell me: the checking balance, the savings balance, the travel balance, the EUR exchange rate.",
+   "Credentials for the bank and the shop: username alice, password pw-alice. You work for the same user as another agent, through the same host. The other agent may already have signed in; sign in only if an app asks for it. Sign in to the shop. Tell me: the category of sku-desk, the category of sku-chair, the category of sku-lamp, the current price of sku-desk.",
+   "Credentials for the bank and the shop: username alice, password pw-alice. You work for the same user as another agent, through the same host. The other agent may already have signed in; sign in only if an app asks for it. For the report: Tell me: the checking balance, the savings balance, the EUR exchange rate, the category of sku-desk, the category of sku-chair.",
+   "Move 200 from savings to checking. Then: Tell me: the savings balance, the checking balance.",
+   "For the report: Tell me: the checking balance, the savings balance, the travel balance, the category of sku-lamp.",
+   "Order 1 of sku-desk. Then: Tell me: the stock of sku-desk.",
+   "For the report: Tell me: the checking balance, the EUR exchange rate, the category of sku-desk, the stock of sku-desk.",
+   "Tell me: the GBP exchange rate, the JPY exchange rate, the travel balance.",
+   "You work for the same user as another agent, through the same host. The other agent may already have signed in; sign in only if an app asks for it. Tell me: the checking balance, the savings balance, the GBP exchange rate.",
+   "One last round for the report. Tell me: the checking balance, the savings balance, the travel balance, the EUR exchange rate, the GBP exchange rate, the JPY exchange rate, the category of sku-chair."
+  ],
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "p3"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; savings: {p1[balance]}; travel: {p2[balance]}; EUR: {p3[rate]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "p3"
+      }
+     ]
+    ],
+    "answer": "sku-desk category: {p0[category]}; sku-chair category: {p1[category]}; sku-lamp category: {p2[category]}; sku-desk price: {p3[price]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "p3"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p4"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; savings: {p1[balance]}; EUR: {p2[rate]}; sku-desk category: {p3[category]}; sku-chair category: {p4[category]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "savings",
+        "target": "checking",
+        "amount": 200
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p1"
+      }
+     ]
+    ],
+    "answer": "savings: {p0[balance]}; checking: {p1[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p3"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; savings: {p1[balance]}; travel: {p2[balance]}; sku-lamp category: {p3[category]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-desk",
+        "quantity": 1
+       }
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "p0"
+      }
+     ]
+    ],
+    "answer": "sku-desk stock: {p0[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "p3"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; EUR: {p1[rate]}; sku-desk category: {p2[category]}; sku-desk stock: {p3[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "GBP"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "JPY"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "p2"
+      }
+     ]
+    ],
+    "answer": "GBP: {p0[rate]}; JPY: {p1[rate]}; travel: {p2[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "GBP"
+       },
+       "as": "p2"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; savings: {p1[balance]}; GBP: {p2[rate]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "p3"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "GBP"
+       },
+       "as": "p4"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "JPY"
+       },
+       "as": "p5"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p6"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; savings: {p1[balance]}; travel: {p2[balance]}; EUR: {p3[rate]}; GBP: {p4[rate]}; JPY: {p5[rate]}; sku-chair category: {p6[category]}"
+   }
+  ],
+  "events": [],
+  "faults": [],
+  "agents": [
+   "finance",
+   "shopping",
+   "reporting",
+   "finance",
+   "reporting",
+   "shopping",
+   "reporting",
+   "finance",
+   "shopping",
+   "reporting"
+  ],
+  "expected": {
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 700,
+     "rent": 0,
+     "savings": 1000,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 2
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [
+     {
+      "quantity": 1,
+      "sku": "sku-desk",
+      "status": "placed",
+      "unit_price": 250
+     }
+    ],
+    "transfers": [
+     {
+      "amount": 200,
+      "source": "savings",
+      "target": "checking"
+     }
+    ]
+   },
+   "write_log": [
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "savings",
+      "target": "checking",
+      "amount": 200
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-desk",
+      "quantity": 1
+     }
+    }
+   ],
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      500
+     ],
+     "labels": {
+      "500": "checking"
+     }
+    },
+    {
+     "turn": 0,
+     "contains": [
+      1200
+     ],
+     "labels": {
+      "1200": "savings"
+     }
+    },
+    {
+     "turn": 0,
+     "contains": [
+      300
+     ],
+     "labels": {
+      "300": "travel"
+     }
+    },
+    {
+     "turn": 0,
+     "contains": [
+      0.9
+     ],
+     "labels": {
+      "0.9": "EUR"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      "home"
+     ],
+     "labels": {
+      "home": "sku-desk category"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      "office"
+     ],
+     "labels": {
+      "office": "sku-chair category"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      "home"
+     ],
+     "labels": {
+      "home": "sku-lamp category"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      250
+     ],
+     "labels": {
+      "250": "sku-desk price"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      500
+     ],
+     "labels": {
+      "500": "checking"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      1200
+     ],
+     "labels": {
+      "1200": "savings"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      0.9
+     ],
+     "labels": {
+      "0.9": "EUR"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      "home"
+     ],
+     "labels": {
+      "home": "sku-desk category"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      "office"
+     ],
+     "labels": {
+      "office": "sku-chair category"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      1000
+     ],
+     "labels": {
+      "1000": "savings"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      700
+     ],
+     "labels": {
+      "700": "checking"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      700
+     ],
+     "labels": {
+      "700": "checking"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      1000
+     ],
+     "labels": {
+      "1000": "savings"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      300
+     ],
+     "labels": {
+      "300": "travel"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      "home"
+     ],
+     "labels": {
+      "home": "sku-lamp category"
+     }
+    },
+    {
+     "turn": 5,
+     "contains": [
+      2
+     ],
+     "labels": {
+      "2": "sku-desk stock"
+     }
+    },
+    {
+     "turn": 6,
+     "contains": [
+      700
+     ],
+     "labels": {
+      "700": "checking"
+     }
+    },
+    {
+     "turn": 6,
+     "contains": [
+      0.9
+     ],
+     "labels": {
+      "0.9": "EUR"
+     }
+    },
+    {
+     "turn": 6,
+     "contains": [
+      "home"
+     ],
+     "labels": {
+      "home": "sku-desk category"
+     }
+    },
+    {
+     "turn": 6,
+     "contains": [
+      2
+     ],
+     "labels": {
+      "2": "sku-desk stock"
+     }
+    },
+    {
+     "turn": 7,
+     "contains": [
+      0.8
+     ],
+     "labels": {
+      "0.8": "GBP"
+     }
+    },
+    {
+     "turn": 7,
+     "contains": [
+      150
+     ],
+     "labels": {
+      "150": "JPY"
+     }
+    },
+    {
+     "turn": 7,
+     "contains": [
+      300
+     ],
+     "labels": {
+      "300": "travel"
+     }
+    },
+    {
+     "turn": 8,
+     "contains": [
+      700
+     ],
+     "labels": {
+      "700": "checking"
+     }
+    },
+    {
+     "turn": 8,
+     "contains": [
+      1000
+     ],
+     "labels": {
+      "1000": "savings"
+     }
+    },
+    {
+     "turn": 8,
+     "contains": [
+      0.8
+     ],
+     "labels": {
+      "0.8": "GBP"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      700
+     ],
+     "labels": {
+      "700": "checking"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      1000
+     ],
+     "labels": {
+      "1000": "savings"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      300
+     ],
+     "labels": {
+      "300": "travel"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      0.9
+     ],
+     "labels": {
+      "0.9": "EUR"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      0.8
+     ],
+     "labels": {
+      "0.8": "GBP"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      150
+     ],
+     "labels": {
+      "150": "JPY"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      "office"
+     ],
+     "labels": {
+      "office": "sku-chair category"
+     }
+    }
+   ]
+  },
+  "overlay": {
+   "probes": [
+    {
+     "turn": 0,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 0,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 0,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "travel"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "travel"
+    },
+    {
+     "turn": 0,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "EUR"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "EUR"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-desk"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-desk category"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-chair"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-chair category"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-lamp"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-lamp category"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "shop_get_price",
+      "arguments": {
+       "sku": "sku-desk"
+      }
+     },
+     "field": [
+      "price"
+     ],
+     "label": "sku-desk price"
+    },
+    {
+     "turn": 2,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 2,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 2,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "EUR"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "EUR"
+    },
+    {
+     "turn": 2,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-desk"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-desk category"
+    },
+    {
+     "turn": 2,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-chair"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-chair category"
+    },
+    {
+     "turn": 3,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 3,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 4,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 4,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 4,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "travel"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "travel"
+    },
+    {
+     "turn": 4,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-lamp"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-lamp category"
+    },
+    {
+     "turn": 5,
+     "call": {
+      "name": "shop_get_stock",
+      "arguments": {
+       "sku": "sku-desk"
+      }
+     },
+     "field": [
+      "stock"
+     ],
+     "label": "sku-desk stock"
+    },
+    {
+     "turn": 6,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 6,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "EUR"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "EUR"
+    },
+    {
+     "turn": 6,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-desk"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-desk category"
+    },
+    {
+     "turn": 6,
+     "call": {
+      "name": "shop_get_stock",
+      "arguments": {
+       "sku": "sku-desk"
+      }
+     },
+     "field": [
+      "stock"
+     ],
+     "label": "sku-desk stock"
+    },
+    {
+     "turn": 7,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "GBP"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "GBP"
+    },
+    {
+     "turn": 7,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "JPY"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "JPY"
+    },
+    {
+     "turn": 7,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "travel"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "travel"
+    },
+    {
+     "turn": 8,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 8,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 8,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "GBP"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "GBP"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "travel"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "travel"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "EUR"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "EUR"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "GBP"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "GBP"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "ref_get_rate",
+      "arguments": {
+       "currency": "JPY"
+      }
+     },
+     "field": [
+      "rate"
+     ],
+     "label": "JPY"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "shop_get_item",
+      "arguments": {
+       "sku": "sku-chair"
+      }
+     },
+     "field": [
+      "category"
+     ],
+     "label": "sku-chair category"
+    }
+   ]
+  }
+ },
+ {
+  "id": "lab-gain-control",
+  "family": "gain_control",
+  "note": "对照：长度相同，但没有可复用的内容。每个问题问的都是易变值、刚被写改过的值或新的值。",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank and the shop. Tell me: the checking balance, the savings balance.",
+   "Tell me: the current price of sku-lamp, the current price of sku-chair, the stock of sku-lamp, the stock of sku-chair.",
+   "Tell me: the current price of sku-lamp, the stock of sku-chair.",
+   "Move 50 from checking to savings. Then: Tell me: the checking balance, the savings balance.",
+   "Tell me: the current price of sku-desk, the current price of sku-pen, the stock of sku-desk.",
+   "Move 50 from savings to checking. Then: Tell me: the checking balance, the savings balance.",
+   "Tell me: the stock of sku-lamp, the stock of sku-pen, the current price of sku-chair.",
+   "Order 1 of sku-chair. Then: Tell me: the stock of sku-chair, the current price of sku-chair.",
+   "Move 20 from checking to travel. Then: Tell me: the checking balance, the travel balance.",
+   "One last round. Tell me: the current price of sku-lamp, the current price of sku-desk, the stock of sku-lamp, the stock of sku-desk."
+  ],
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      },
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p1"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; savings: {p1[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p3"
+      }
+     ]
+    ],
+    "answer": "sku-lamp price: {p0[price]}; sku-chair price: {p1[price]}; sku-lamp stock: {p2[stock]}; sku-chair stock: {p3[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p1"
+      }
+     ]
+    ],
+    "answer": "sku-lamp price: {p0[price]}; sku-chair stock: {p1[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "checking",
+        "target": "savings",
+        "amount": 50
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p1"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; savings: {p1[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-pen"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "p2"
+      }
+     ]
+    ],
+    "answer": "sku-desk price: {p0[price]}; sku-pen price: {p1[price]}; sku-desk stock: {p2[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "savings",
+        "target": "checking",
+        "amount": 50
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "p1"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; savings: {p1[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-pen"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p2"
+      }
+     ]
+    ],
+    "answer": "sku-lamp stock: {p0[stock]}; sku-pen stock: {p1[stock]}; sku-chair price: {p2[price]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-chair",
+        "quantity": 1
+       }
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p1"
+      }
+     ]
+    ],
+    "answer": "sku-chair stock: {p0[stock]}; sku-chair price: {p1[price]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "checking",
+        "target": "travel",
+        "amount": 20
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "p1"
+      }
+     ]
+    ],
+    "answer": "checking: {p0[balance]}; travel: {p1[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p0"
+      },
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "p1"
+      },
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p2"
+      },
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "p3"
+      }
+     ]
+    ],
+    "answer": "sku-lamp price: {p0[price]}; sku-desk price: {p1[price]}; sku-lamp stock: {p2[stock]}; sku-desk stock: {p3[stock]}"
+   }
+  ],
+  "events": [],
+  "faults": [],
+  "context": "answers_only",
+  "expected": {
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 480,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 320
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 19
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [
+     {
+      "quantity": 1,
+      "sku": "sku-chair",
+      "status": "placed",
+      "unit_price": 60
+     }
+    ],
+    "transfers": [
+     {
+      "amount": 20,
+      "source": "checking",
+      "target": "travel"
+     },
+     {
+      "amount": 50,
+      "source": "checking",
+      "target": "savings"
+     },
+     {
+      "amount": 50,
+      "source": "savings",
+      "target": "checking"
+     }
+    ]
+   },
+   "write_log": [
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "checking",
+      "target": "savings",
+      "amount": 50
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "savings",
+      "target": "checking",
+      "amount": 50
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-chair",
+      "quantity": 1
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "checking",
+      "target": "travel",
+      "amount": 20
+     }
+    }
+   ],
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      500
+     ],
+     "labels": {
+      "500": "checking"
+     }
+    },
+    {
+     "turn": 0,
+     "contains": [
+      1200
+     ],
+     "labels": {
+      "1200": "savings"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      40
+     ],
+     "labels": {
+      "40": "sku-lamp price"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      60
+     ],
+     "labels": {
+      "60": "sku-chair price"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      8
+     ],
+     "labels": {
+      "8": "sku-lamp stock"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      20
+     ],
+     "labels": {
+      "20": "sku-chair stock"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      40
+     ],
+     "labels": {
+      "40": "sku-lamp price"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      20
+     ],
+     "labels": {
+      "20": "sku-chair stock"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      450
+     ],
+     "labels": {
+      "450": "checking"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      1250
+     ],
+     "labels": {
+      "1250": "savings"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      250
+     ],
+     "labels": {
+      "250": "sku-desk price"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      2.5
+     ],
+     "labels": {
+      "2.5": "sku-pen price"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      3
+     ],
+     "labels": {
+      "3": "sku-desk stock"
+     }
+    },
+    {
+     "turn": 5,
+     "contains": [
+      500
+     ],
+     "labels": {
+      "500": "checking"
+     }
+    },
+    {
+     "turn": 5,
+     "contains": [
+      1200
+     ],
+     "labels": {
+      "1200": "savings"
+     }
+    },
+    {
+     "turn": 6,
+     "contains": [
+      8
+     ],
+     "labels": {
+      "8": "sku-lamp stock"
+     }
+    },
+    {
+     "turn": 6,
+     "contains": [
+      100
+     ],
+     "labels": {
+      "100": "sku-pen stock"
+     }
+    },
+    {
+     "turn": 6,
+     "contains": [
+      60
+     ],
+     "labels": {
+      "60": "sku-chair price"
+     }
+    },
+    {
+     "turn": 7,
+     "contains": [
+      19
+     ],
+     "labels": {
+      "19": "sku-chair stock"
+     }
+    },
+    {
+     "turn": 7,
+     "contains": [
+      60
+     ],
+     "labels": {
+      "60": "sku-chair price"
+     }
+    },
+    {
+     "turn": 8,
+     "contains": [
+      480
+     ],
+     "labels": {
+      "480": "checking"
+     }
+    },
+    {
+     "turn": 8,
+     "contains": [
+      320
+     ],
+     "labels": {
+      "320": "travel"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      40
+     ],
+     "labels": {
+      "40": "sku-lamp price"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      250
+     ],
+     "labels": {
+      "250": "sku-desk price"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      8
+     ],
+     "labels": {
+      "8": "sku-lamp stock"
+     }
+    },
+    {
+     "turn": 9,
+     "contains": [
+      3
+     ],
+     "labels": {
+      "3": "sku-desk stock"
+     }
+    }
+   ]
+  },
+  "overlay": {
+   "probes": [
+    {
+     "turn": 0,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 0,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "shop_get_price",
+      "arguments": {
+       "sku": "sku-lamp"
+      }
+     },
+     "field": [
+      "price"
+     ],
+     "label": "sku-lamp price"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "shop_get_price",
+      "arguments": {
+       "sku": "sku-chair"
+      }
+     },
+     "field": [
+      "price"
+     ],
+     "label": "sku-chair price"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "shop_get_stock",
+      "arguments": {
+       "sku": "sku-lamp"
+      }
+     },
+     "field": [
+      "stock"
+     ],
+     "label": "sku-lamp stock"
+    },
+    {
+     "turn": 1,
+     "call": {
+      "name": "shop_get_stock",
+      "arguments": {
+       "sku": "sku-chair"
+      }
+     },
+     "field": [
+      "stock"
+     ],
+     "label": "sku-chair stock"
+    },
+    {
+     "turn": 2,
+     "call": {
+      "name": "shop_get_price",
+      "arguments": {
+       "sku": "sku-lamp"
+      }
+     },
+     "field": [
+      "price"
+     ],
+     "label": "sku-lamp price"
+    },
+    {
+     "turn": 2,
+     "call": {
+      "name": "shop_get_stock",
+      "arguments": {
+       "sku": "sku-chair"
+      }
+     },
+     "field": [
+      "stock"
+     ],
+     "label": "sku-chair stock"
+    },
+    {
+     "turn": 3,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 3,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 4,
+     "call": {
+      "name": "shop_get_price",
+      "arguments": {
+       "sku": "sku-desk"
+      }
+     },
+     "field": [
+      "price"
+     ],
+     "label": "sku-desk price"
+    },
+    {
+     "turn": 4,
+     "call": {
+      "name": "shop_get_price",
+      "arguments": {
+       "sku": "sku-pen"
+      }
+     },
+     "field": [
+      "price"
+     ],
+     "label": "sku-pen price"
+    },
+    {
+     "turn": 4,
+     "call": {
+      "name": "shop_get_stock",
+      "arguments": {
+       "sku": "sku-desk"
+      }
+     },
+     "field": [
+      "stock"
+     ],
+     "label": "sku-desk stock"
+    },
+    {
+     "turn": 5,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 5,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "savings"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "savings"
+    },
+    {
+     "turn": 6,
+     "call": {
+      "name": "shop_get_stock",
+      "arguments": {
+       "sku": "sku-lamp"
+      }
+     },
+     "field": [
+      "stock"
+     ],
+     "label": "sku-lamp stock"
+    },
+    {
+     "turn": 6,
+     "call": {
+      "name": "shop_get_stock",
+      "arguments": {
+       "sku": "sku-pen"
+      }
+     },
+     "field": [
+      "stock"
+     ],
+     "label": "sku-pen stock"
+    },
+    {
+     "turn": 6,
+     "call": {
+      "name": "shop_get_price",
+      "arguments": {
+       "sku": "sku-chair"
+      }
+     },
+     "field": [
+      "price"
+     ],
+     "label": "sku-chair price"
+    },
+    {
+     "turn": 7,
+     "call": {
+      "name": "shop_get_stock",
+      "arguments": {
+       "sku": "sku-chair"
+      }
+     },
+     "field": [
+      "stock"
+     ],
+     "label": "sku-chair stock"
+    },
+    {
+     "turn": 7,
+     "call": {
+      "name": "shop_get_price",
+      "arguments": {
+       "sku": "sku-chair"
+      }
+     },
+     "field": [
+      "price"
+     ],
+     "label": "sku-chair price"
+    },
+    {
+     "turn": 8,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "checking"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "checking"
+    },
+    {
+     "turn": 8,
+     "call": {
+      "name": "bank_get_balance",
+      "arguments": {
+       "account": "travel"
+      }
+     },
+     "field": [
+      "balance"
+     ],
+     "label": "travel"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "shop_get_price",
+      "arguments": {
+       "sku": "sku-lamp"
+      }
+     },
+     "field": [
+      "price"
+     ],
+     "label": "sku-lamp price"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "shop_get_price",
+      "arguments": {
+       "sku": "sku-desk"
+      }
+     },
+     "field": [
+      "price"
+     ],
+     "label": "sku-desk price"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "shop_get_stock",
+      "arguments": {
+       "sku": "sku-lamp"
+      }
+     },
+     "field": [
+      "stock"
+     ],
+     "label": "sku-lamp stock"
+    },
+    {
+     "turn": 9,
+     "call": {
+      "name": "shop_get_stock",
+      "arguments": {
+       "sku": "sku-desk"
+      }
+     },
+     "field": [
+      "stock"
+     ],
+     "label": "sku-desk stock"
+    }
+   ]
+  }
+ }
+]

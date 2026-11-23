@@ -51,7 +51,8 @@ def validate_lab_cases(cases, data_dir=DATA):
     if heldout.is_file():
         known |= {task["id"] for task in json.loads(heldout.read_text(encoding="utf-8"))}
     for extra in sorted([*Path(data_dir).glob("recon-*-tasks.json"),  # rebuilt benchmarks
-                         *Path(data_dir).glob("lab-long-tasks.json")]):
+                         *Path(data_dir).glob("lab-long-tasks.json"),
+                         *Path(data_dir).glob("lab-gain-tasks.json")]):
         known |= {task["id"] for task in json.loads(extra.read_text(encoding="utf-8"))}
     seen = set()
     for case in cases:
