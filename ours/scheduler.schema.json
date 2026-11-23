@@ -1,0 +1,684 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scheduler-policy-v0",
+  "title": "M1–M4 调度参数（v0）",
+  "description": "x-tier: L0 安全锁定（只能由作者修改，RSI 覆盖时拒绝）；L1 结构开关；L2 数值。见 docs/m1-m4-scheduler.md §7.1。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "locked",
+    "ttl",
+    "invalidation",
+    "coupling",
+    "capacity",
+    "admission",
+    "eviction",
+    "forget",
+    "tiers",
+    "retry",
+    "recovery",
+    "publish",
+    "prefetch"
+  ],
+  "$defs": {
+    "module_map_number": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "properties": {
+        "M1": {
+          "type": "number",
+          "minimum": 0
+        },
+        "M2": {
+          "type": "number",
+          "minimum": 0
+        },
+        "M3": {
+          "type": "number",
+          "minimum": 0
+        },
+        "M4": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "tier": {
+      "enum": [
+        "task",
+        "session",
+        "host"
+      ]
+    }
+  },
+  "properties": {
+    "version": {
+      "const": "scheduler-v0"
+    },
+    "preset": {
+      "type": "string",
+      "description": "来源预设名，仅用于记录"
+    },
+    "locked": {
+      "x-tier": "L0",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "retry_max_attempts",
+        "strict_never_cached",
+        "uncertain_write_never_replayed",
+        "untagged_write_min_granularity",
+        "m2_cross_task",
+        "undeclared_read_cacheable"
+      ],
+      "properties": {
+        "retry_max_attempts": {
+          "const": 2,
+          "description": "与所有方法共用的执行层重试上限"
+        },
+        "strict_never_cached": {
+          "const": true
+        },
+        "uncertain_write_never_replayed": {
+          "const": true,
+          "description": "结果未知的写不得盲目重放；只有带同一幂等键（Server 去重）或对账确认未执行后才允许再次发出"
+        },
+        "untagged_write_min_granularity": {
+          "const": "app"
+        },
+        "m2_cross_task": {
+          "const": false,
+          "description": "每个任务从同一初态开始；跨任务复用读取结果会破坏独立性"
+        },
+        "undeclared_read_cacheable": {
+          "const": false
+        }
+      }
+    },
+    "ttl": {
+      "x-tier": "L2",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit",
+        "static",
+        "slow",
+        "volatile",
+        "m4_completed",
+        "wall_clock_cap_s",
+        "catalog_default",
+        "adaptive"
+      ],
+      "properties": {
+        "unit": {
+          "x-tier": "L1",
+          "enum": [
+            "seconds",
+            "steps",
+            "turns"
+          ]
+        },
+        "static": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 3600,
+          "description": "static 类期限；null 表示到任务结束（仍受 wall_clock_cap_s 约束）"
+        },
+        "slow": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 3600
+        },
+        "volatile": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "m4_completed": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 3600,
+          "description": "已完成的只读操作结果按 op_id 复用的期限"
+        },
+        "wall_clock_cap_s": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 3600,
+          "description": "unit 为 steps/turns 时的墙钟上限；unit 为 seconds 时不起作用"
+        },
+        "fresh_class_overrides": {
+          "type": "object",
+          "additionalProperties": {
+            "enum": [
+              "static",
+              "slow",
+              "volatile",
+              "strict"
+            ]
+          },
+          "description": "工具键（appworld 为 app.api）→ 级别；实际级别取 max(契约级别, 覆盖级别)，只能调严"
+        },
+        "catalog_default": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 86400,
+          "description": "M1 目录的默认新鲜期（秒）。Server 按 SEP-2549 返回 ttlMs 时以 ttlMs 为准；null 表示只按版本、内容哈希和授权判断"
+        },
+        "adaptive": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "命中时抽样回源比对，并按结果调整该工具的 TTL 倍率（随机逼近）：每次校验后 scale *= exp(step × (target_stale_rate − 是否陈旧))，陈旧命中率收敛到 target_stale_rate。校验的回源计入成本",
+          "required": [
+            "enabled",
+            "verify_sample_rate",
+            "target_stale_rate",
+            "step",
+            "min_scale",
+            "max_scale"
+          ],
+          "properties": {
+            "enabled": {
+              "x-tier": "L1",
+              "type": "boolean"
+            },
+            "verify_sample_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "target_stale_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.5
+            },
+            "step": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "min_scale": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
+            "max_scale": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 64
+            }
+          }
+        }
+      }
+    },
+    "invalidation": {
+      "x-tier": "L1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "granularity",
+        "quarantine_on_unknown_write",
+        "on_refused_write"
+      ],
+      "properties": {
+        "granularity": {
+          "enum": [
+            "global",
+            "server",
+            "app",
+            "resource"
+          ],
+          "description": "resource 粒度下，未声明 affects 的写退回 app 粒度"
+        },
+        "quarantine_on_unknown_write": {
+          "type": "boolean",
+          "description": "结果未知的写至少按 app 粒度失效（resource 粒度下才有区别）"
+        },
+        "on_refused_write": {
+          "x-tier": "L1",
+          "type": "boolean",
+          "description": "写操作被服务器以业务原因拒绝（例如库存不足）时，让它声明会影响的资源上的已缓存读取失效。拒绝往往说明 Host 手里的状态已经过时"
+        }
+      }
+    },
+    "coupling": {
+      "x-tier": "L1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled_rules",
+        "catalog_auth_scoped",
+        "partition_by_principal",
+        "refresh_margin_s"
+      ],
+      "properties": {
+        "enabled_rules": {
+          "type": "array",
+          "uniqueItems": true,
+          "description": "每条规则关闭时退回更保守的行为，不会变得不安全",
+          "items": {
+            "enum": [
+              "auth_upgrade_keeps_m2",
+              "catalog_change_scoped",
+              "credential_scope_superset",
+              "credential_refresh_ahead"
+            ]
+          }
+        },
+        "catalog_auth_scoped": {
+          "type": "boolean",
+          "description": "true：所有目录都随授权变化失效（保守，旧行为）；false：契约声明为公开的目录不随授权失效，未声明的仍失效"
+        },
+        "partition_by_principal": {
+          "type": "boolean",
+          "description": "true：撤销/登出只失效该主体的 M1/M2/M3；false：任何授权变化都全部失效（旧行为）"
+        },
+        "refresh_margin_s": {
+          "x-tier": "L2",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 3600,
+          "description": "credential_refresh_ahead：剩余有效期少于该值且注册了刷新器时提前刷新"
+        }
+      }
+    },
+    "capacity": {
+      "x-tier": "L2",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total_bytes",
+        "share",
+        "borrow",
+        "max_entries",
+        "max_entry_bytes"
+      ],
+      "properties": {
+        "total_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 268435456,
+          "description": "0 表示不限"
+        },
+        "share": {
+          "$ref": "#/$defs/module_map_number",
+          "description": "各模块份额，和为 1（加载器校验）"
+        },
+        "borrow": {
+          "x-tier": "L1",
+          "type": "boolean",
+          "description": "true：总量未满时允许某模块超出自己的份额"
+        },
+        "max_entries": {
+          "$ref": "#/$defs/module_map_number",
+          "description": "0 表示不限"
+        },
+        "max_entry_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 16777216,
+          "description": "0 表示不限"
+        }
+      }
+    },
+    "admission": {
+      "x-tier": "L2",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min_refetch_cost_ms"
+      ],
+      "properties": {
+        "min_refetch_cost_ms": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10000
+        }
+      }
+    },
+    "eviction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy",
+        "w_lat",
+        "w_bytes",
+        "w_tok",
+        "freq_exponent"
+      ],
+      "properties": {
+        "policy": {
+          "x-tier": "L1",
+          "enum": [
+            "lru",
+            "lfu",
+            "gdsf"
+          ]
+        },
+        "w_lat": {
+          "x-tier": "L2",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "w_bytes": {
+          "x-tier": "L2",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "w_tok": {
+          "x-tier": "L2",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "freq_exponent": {
+          "x-tier": "L2",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2
+        }
+      }
+    },
+    "forget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "idle_steps",
+        "on_turn_end"
+      ],
+      "properties": {
+        "idle_steps": {
+          "x-tier": "L2",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 256,
+          "description": "0 表示不按空闲遗忘"
+        },
+        "on_turn_end": {
+          "x-tier": "L1",
+          "enum": [
+            "keep",
+            "drop_volatile",
+            "drop_all_M2"
+          ]
+        }
+      }
+    },
+    "tiers": {
+      "x-tier": "L1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "properties": {
+        "M1": {
+          "$ref": "#/$defs/tier"
+        },
+        "M2": {
+          "const": "task"
+        },
+        "M3": {
+          "$ref": "#/$defs/tier"
+        },
+        "M4": {
+          "enum": [
+            "task",
+            "session"
+          ]
+        }
+      }
+    },
+    "retry": {
+      "x-tier": "L2",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "backoff_base_ms",
+        "backoff_factor",
+        "backoff_cap_ms",
+        "honor_retry_after",
+        "jitter"
+      ],
+      "properties": {
+        "backoff_base_ms": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5000
+        },
+        "backoff_factor": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 4
+        },
+        "backoff_cap_ms": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 30000
+        },
+        "honor_retry_after": {
+          "x-tier": "L1",
+          "type": "boolean"
+        },
+        "jitter": {
+          "x-tier": "L1",
+          "enum": [
+            "none",
+            "full"
+          ],
+          "description": "full：实际等待在 [0, 退避值] 内均匀取值；Server 给出的 retry_after 始终作为下限"
+        }
+      }
+    },
+    "recovery": {
+      "x-tier": "L1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "auth",
+        "unknown_write",
+        "reuse_same_condition_failure",
+        "failure_index",
+        "allow_revalidate",
+        "breaker",
+        "failure_ages",
+        "failure_ttl"
+      ],
+      "properties": {
+        "auth": {
+          "enum": [
+            "refresh_then_retry_once",
+            "surface_only"
+          ],
+          "description": "前者需要注册刷新器，并占用一次共享的重试机会"
+        },
+        "unknown_write": {
+          "enum": [
+            "idempotent_retry",
+            "reconcile_read",
+            "surface_only"
+          ],
+          "description": "idempotent_retry：契约声明支持幂等键时带同一键重试，否则退回 reconcile_read；reconcile_read：需要注册对账器，否则阻断；surface_only：一律阻断并交给模型"
+        },
+        "reuse_same_condition_failure": {
+          "type": "boolean"
+        },
+        "failure_index": {
+          "enum": [
+            "operation_id",
+            "identity"
+          ],
+          "description": "identity：同一工具+参数、同一授权/数据条件下的不可重试失败可以跨调用复用（runner 每次调用都生成新 op_id）"
+        },
+        "allow_revalidate": {
+          "type": "boolean",
+          "description": "v0 尚未实现：仅为 schema 预留，设为 true 时加载器拒绝"
+        },
+        "breaker": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "threshold",
+            "cooldown_steps"
+          ],
+          "description": "断路器：同一工具连续出现可重试失败达到 threshold 次后，cooldown_steps 个决策步内不再回源，直接返回失败",
+          "properties": {
+            "threshold": {
+              "x-tier": "L2",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 32,
+              "description": "0 表示关闭"
+            },
+            "cooldown_steps": {
+              "x-tier": "L2",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 64
+            }
+          }
+        },
+        "failure_ages": {
+          "x-tier": "L1",
+          "type": "boolean",
+          "description": "记住的业务失败（例如库存不足）是否会过期。true：保留 failure_ttl 这么久，之后同样的请求会重新发给服务器；false：只要 Host 自己看到的条件没变就一直复用。外部状态会变时应为 true"
+        },
+        "failure_ttl": {
+          "x-tier": "L2",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600,
+          "description": "failure_ages 为 true 时，记住的业务失败保留多久（单位同 ttl.unit）。到期后同样的请求会重新发给服务器"
+        }
+      }
+    },
+    "publish": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "read_results",
+        "operations",
+        "mode",
+        "budget_bytes",
+        "max_items",
+        "full_max_bytes",
+        "ops_first",
+        "context_dedup",
+        "large_repeat_min_bytes",
+        "failure_form",
+        "select"
+      ],
+      "properties": {
+        "read_results": {
+          "x-tier": "L1",
+          "type": "boolean"
+        },
+        "operations": {
+          "x-tier": "L1",
+          "type": "boolean"
+        },
+        "mode": {
+          "x-tier": "L1",
+          "enum": [
+            "key_values",
+            "ref_only",
+            "full",
+            "hybrid"
+          ],
+          "description": "key_values：给出结果的关键值和版本依据（设计稿 4.3，默认），单条不超过 full_max_bytes；ref_only：只给有效性引用；full：附上结果；hybrid：结果不超过 full_max_bytes 时附上"
+        },
+        "budget_bytes": {
+          "x-tier": "L2",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65536
+        },
+        "max_items": {
+          "x-tier": "L2",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64,
+          "description": "读取引用最多 min(3, max_items) 条（增广确认轮只需要最近 3 条）；操作记录最多 max_items 条"
+        },
+        "full_max_bytes": {
+          "x-tier": "L2",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65536
+        },
+        "ops_first": {
+          "x-tier": "L1",
+          "type": "boolean",
+          "description": "true：操作记录先占用预算，剩余预算给读取引用"
+        },
+        "context_dedup": {
+          "x-tier": "L1",
+          "type": "boolean"
+        },
+        "large_repeat_min_bytes": {
+          "x-tier": "L2",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1048576,
+          "description": "结果不小于这个字节数、且与本次对话里更早的某个结果逐字节相同时，只给模型一个指向那次调用的引用，不再重复全文。0 表示关闭。context_dedup 打开时以它为准"
+        },
+        "failure_form": {
+          "x-tier": "L1",
+          "enum": [
+            "verbatim",
+            "described"
+          ],
+          "description": "verbatim：给出失败调用的工具名和参数；described：只给一句运行时生成的描述（工具名、发生的决策步、错误类别、条件是否变化），不重复参数"
+        },
+        "select": {
+          "enum": [
+            "current_turn",
+            "replaces_call"
+          ],
+          "description": "Which read results are offered before a decision. current_turn: the reads made in this user turn (their results are already in the conversation). replaces_call: every valid read whose result the decision maker cannot see in this turn - compacted away, read by another agent, or read in an earlier turn - so that publishing it can stand in for a call."
+        }
+      }
+    },
+    "prefetch": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Reads the host makes on its own before a decision, so that the model can answer without a round of calls. Only reads the agent made before are repeated, and only when the user's message names what they read or the agent read them in the preceding turn.",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "max_per_decision": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Most reads fetched ahead of one decision."
+        },
+        "after_write": {
+          "type": "boolean",
+          "description": "Also refresh after a step that wrote, not only at the start of a turn."
+        }
+      },
+      "required": [
+        "enabled",
+        "max_per_decision",
+        "after_write"
+      ]
+    }
+  }
+}

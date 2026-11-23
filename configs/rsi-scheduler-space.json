@@ -1,0 +1,24 @@
+{
+  "version": "rsi-scheduler-space-v0",
+  "note": "RSI 在调度器参数上的预注册搜索计划。第 1 轮比较 round1_presets 中的预设；之后每轮从当前胜者出发，沿 axes 依次生成只改一个参数的邻居，每轮最多评估 round_limit 个新候选。axes 必须是 schema 中标为 L1/L2 的参数；安全锁（L0）不能出现在这里。 按设计稿 4.4 对齐：搜索只调整 TTL、读取结果提供开关与预算、操作状态提供开关、结果去重开关。",
+  "round1_presets": [
+    "default",
+    "read_heavy",
+    "write_heavy",
+    "ablation_current"
+  ],
+  "factors": [
+    0.5,
+    2
+  ],
+  "share_slice": 0.1,
+  "round_limit": 6,
+  "axes": [
+    "ttl.slow",
+    "ttl.volatile",
+    "publish.read_results",
+    "publish.budget_bytes",
+    "publish.operations",
+    "publish.context_dedup"
+  ]
+}

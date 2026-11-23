@@ -1,0 +1,11 @@
+# Python 3.11; AppWorld requires a separate Pydantic 1 environment.
+mcp==1.30.0
+bfcl-eval==2026.3.23
+requests==2.34.2
+jsonschema==4.26.0
+# AI-Scientist-v2 query adapter import dependencies:
+openai==3.51.0
+anthropic==2.8.0
+backoff==2.2.1
+dataclasses-json==0.6.7
+funcy==2.1

@@ -1,0 +1,6 @@
+{
+  "version": "formal-suite-v1",
+  "status": "unregistered",
+  "reason": "正式任务与划分尚未对齐；旧 36-case 增广 smoke 已被观察，不改称独立正式测试集。",
+  "cases": []
+}

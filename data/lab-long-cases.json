@@ -1,0 +1,25 @@
+{
+ "version": "lab-long-cases-v0",
+ "suite": "lab",
+ "note": "长任务（历史被压缩）和双智能体共用 Host 各一条。由 data/lab_long.py 生成。",
+ "cases": [
+  {
+   "case_id": "lab-long-compacted",
+   "dataset": "lab",
+   "task_id": "lab-long-compacted",
+   "scenario": "long_compacted",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "lab-two-agents",
+   "dataset": "lab",
+   "task_id": "lab-two-agents",
+   "scenario": "two_agents",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  }
+ ]
+}

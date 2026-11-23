@@ -1,0 +1,8520 @@
+[
+ {
+  "id": "ho-accounts-1",
+  "family": "ho_accounts",
+  "note": "Transfers between varying pairs; each is followed by reads of accounts\n    it did and did not touch. The bank session is dropped once, mid-turn.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank and tell me the checking, savings, travel and bills balances.",
+   "Move 20 from bills to savings, then tell me the savings and bills balances. Sign in again if the bank asks for it.",
+   "Move 20 from checking to savings, then tell me the savings and bills balances. Sign in again if the bank asks for it.",
+   "Move 25 from savings to bills, then tell me the travel and checking balances. Sign in again if the bank asks for it.",
+   "Move 25 from travel to checking, then tell me the checking and bills balances. Sign in again if the bank asks for it."
+  ],
+  "events": [
+   {
+    "after_call": {
+     "tool": "bank_get_balance",
+     "nth": 9
+    },
+    "kind": "expire_session",
+    "app": "bank"
+   }
+  ],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      500,
+      1200,
+      300,
+      80
+     ],
+     "labels": {
+      "500": "checking",
+      "1200": "savings",
+      "300": "travel",
+      "80": "bills"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      1220,
+      60
+     ],
+     "labels": {
+      "1220": "savings",
+      "60": "bills"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      1240,
+      60
+     ],
+     "labels": {
+      "1240": "savings",
+      "60": "bills"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      300,
+      480
+     ],
+     "labels": {
+      "300": "travel",
+      "480": "checking"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      505,
+      85
+     ],
+     "labels": {
+      "505": "checking",
+      "85": "bills"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 85,
+     "bob-main": 900,
+     "checking": 505,
+     "rent": 0,
+     "savings": 1215,
+     "travel": 275
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": [
+     {
+      "amount": 20,
+      "source": "bills",
+      "target": "savings"
+     },
+     {
+      "amount": 20,
+      "source": "checking",
+      "target": "savings"
+     },
+     {
+      "amount": 25,
+      "source": "savings",
+      "target": "bills"
+     },
+     {
+      "amount": 25,
+      "source": "travel",
+      "target": "checking"
+     }
+    ]
+   },
+   "write_log": [
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "bills",
+      "target": "savings",
+      "amount": 20
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "checking",
+      "target": "savings",
+      "amount": 20
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "savings",
+      "target": "bills",
+      "amount": 25
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "travel",
+      "target": "checking",
+      "amount": 25
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}, savings {s[balance]}, travel {t[balance]}, bills {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "bills",
+        "target": "savings",
+        "amount": 20
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "savings {s[balance]}, bills {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "checking",
+        "target": "savings",
+        "amount": 20
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "savings {s[balance]}, bills {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "savings",
+        "target": "bills",
+        "amount": 25
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      }
+     ]
+    ],
+    "answer": "travel {t[balance]}, checking {c[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "travel",
+        "target": "checking",
+        "amount": 25
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}, bills {b[balance]}"
+   }
+  ]
+ },
+ {
+  "id": "ho-accounts-2",
+  "family": "ho_accounts",
+  "note": "Transfers between varying pairs; each is followed by reads of accounts\n    it did and did not touch. The bank session is dropped once, mid-turn.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank and tell me the checking, savings, travel and bills balances.",
+   "Move 25 from bills to savings, then tell me the bills and travel balances. Sign in again if the bank asks for it.",
+   "Move 10 from travel to savings, then tell me the savings and bills balances. Sign in again if the bank asks for it.",
+   "Move 40 from savings to bills, then tell me the checking and travel balances. Sign in again if the bank asks for it.",
+   "Move 10 from bills to savings, then tell me the travel and savings balances. Sign in again if the bank asks for it."
+  ],
+  "events": [
+   {
+    "after_call": {
+     "tool": "bank_get_balance",
+     "nth": 9
+    },
+    "kind": "expire_session",
+    "app": "bank"
+   }
+  ],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      500,
+      1200,
+      300,
+      80
+     ],
+     "labels": {
+      "500": "checking",
+      "1200": "savings",
+      "300": "travel",
+      "80": "bills"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      55,
+      300
+     ],
+     "labels": {
+      "55": "bills",
+      "300": "travel"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      1235,
+      55
+     ],
+     "labels": {
+      "1235": "savings",
+      "55": "bills"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      500,
+      290
+     ],
+     "labels": {
+      "500": "checking",
+      "290": "travel"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      290,
+      1205
+     ],
+     "labels": {
+      "290": "travel",
+      "1205": "savings"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 85,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1205,
+     "travel": 290
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": [
+     {
+      "amount": 10,
+      "source": "bills",
+      "target": "savings"
+     },
+     {
+      "amount": 10,
+      "source": "travel",
+      "target": "savings"
+     },
+     {
+      "amount": 25,
+      "source": "bills",
+      "target": "savings"
+     },
+     {
+      "amount": 40,
+      "source": "savings",
+      "target": "bills"
+     }
+    ]
+   },
+   "write_log": [
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "bills",
+      "target": "savings",
+      "amount": 25
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "travel",
+      "target": "savings",
+      "amount": 10
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "savings",
+      "target": "bills",
+      "amount": 40
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "bills",
+      "target": "savings",
+      "amount": 10
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}, savings {s[balance]}, travel {t[balance]}, bills {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "bills",
+        "target": "savings",
+        "amount": 25
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      }
+     ]
+    ],
+    "answer": "bills {b[balance]}, travel {t[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "travel",
+        "target": "savings",
+        "amount": 10
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "savings {s[balance]}, bills {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "savings",
+        "target": "bills",
+        "amount": 40
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}, travel {t[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "bills",
+        "target": "savings",
+        "amount": 10
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "travel {t[balance]}, savings {s[balance]}"
+   }
+  ]
+ },
+ {
+  "id": "ho-accounts-3",
+  "family": "ho_accounts",
+  "note": "Transfers between varying pairs; each is followed by reads of accounts\n    it did and did not touch. The bank session is dropped once, mid-turn.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank and tell me the checking, savings, travel and bills balances.",
+   "Move 40 from bills to savings, then tell me the travel and checking balances. Sign in again if the bank asks for it.",
+   "Move 60 from bills to checking, then tell me the travel and bills balances. Sign in again if the bank asks for it.",
+   "Move 60 from checking to bills, then tell me the savings and checking balances. Sign in again if the bank asks for it.",
+   "Move 25 from savings to bills, then tell me the travel and savings balances. Sign in again if the bank asks for it."
+  ],
+  "events": [
+   {
+    "after_call": {
+     "tool": "bank_get_balance",
+     "nth": 8
+    },
+    "kind": "expire_session",
+    "app": "bank"
+   }
+  ],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      500,
+      1200,
+      300,
+      80
+     ],
+     "labels": {
+      "500": "checking",
+      "1200": "savings",
+      "300": "travel",
+      "80": "bills"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      300,
+      500
+     ],
+     "labels": {
+      "300": "travel",
+      "500": "checking"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      300,
+      40
+     ],
+     "labels": {
+      "300": "travel",
+      "40": "bills"
+     },
+     "refused_write": true
+    },
+    {
+     "turn": 3,
+     "contains": [
+      1240,
+      440
+     ],
+     "labels": {
+      "1240": "savings",
+      "440": "checking"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      300,
+      1215
+     ],
+     "labels": {
+      "300": "travel",
+      "1215": "savings"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 125,
+     "bob-main": 900,
+     "checking": 440,
+     "rent": 0,
+     "savings": 1215,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": [
+     {
+      "amount": 25,
+      "source": "savings",
+      "target": "bills"
+     },
+     {
+      "amount": 40,
+      "source": "bills",
+      "target": "savings"
+     },
+     {
+      "amount": 60,
+      "source": "checking",
+      "target": "bills"
+     }
+    ]
+   },
+   "write_log": [
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "bills",
+      "target": "savings",
+      "amount": 40
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "checking",
+      "target": "bills",
+      "amount": 60
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "savings",
+      "target": "bills",
+      "amount": 25
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}, savings {s[balance]}, travel {t[balance]}, bills {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "bills",
+        "target": "savings",
+        "amount": 40
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      }
+     ]
+    ],
+    "answer": "travel {t[balance]}, checking {c[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "bills",
+        "target": "checking",
+        "amount": 60
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "travel {t[balance]}, bills {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "checking",
+        "target": "bills",
+        "amount": 60
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      }
+     ]
+    ],
+    "answer": "savings {s[balance]}, checking {c[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "savings",
+        "target": "bills",
+        "amount": 25
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "travel {t[balance]}, savings {s[balance]}"
+   }
+  ]
+ },
+ {
+  "id": "ho-price-1",
+  "family": "ho_price",
+  "note": "A price that others change, sometimes between two reads of one turn;\n    an order is placed only while the price is at or under a limit.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the shop and tell me the price and the stock of sku-lamp.",
+   "Check the sku-lamp price, then its stock, then the price once more. If that last price is 42 or less, order 2. Tell me the last price and the stock at the end.",
+   "Check the sku-lamp price, then its stock, then the price once more. If that last price is 42 or less, order 1. Tell me the last price and the stock at the end.",
+   "Check the sku-lamp price, then its stock, then the price once more. If that last price is 42 or less, order 2. Tell me the last price and the stock at the end."
+  ],
+  "events": [
+   {
+    "at_turn": 1,
+    "kind": "set_price",
+    "sku": "sku-lamp",
+    "price": 48
+   },
+   {
+    "at_turn": 2,
+    "kind": "set_price",
+    "sku": "sku-lamp",
+    "price": 34
+   },
+   {
+    "at_turn": 3,
+    "kind": "set_price",
+    "sku": "sku-lamp",
+    "price": 34
+   }
+  ],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      40,
+      8
+     ],
+     "labels": {
+      "40": "lamp",
+      "8": "stock"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      48,
+      8
+     ],
+     "labels": {
+      "48": "lamp",
+      "8": "stock"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      34,
+      7
+     ],
+     "labels": {
+      "34": "lamp",
+      "7": "stock"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      34,
+      5
+     ],
+     "labels": {
+      "34": "lamp",
+      "5": "stock"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 34,
+      "stock": 5
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [
+     {
+      "quantity": 1,
+      "sku": "sku-lamp",
+      "status": "placed",
+      "unit_price": 34
+     },
+     {
+      "quantity": 2,
+      "sku": "sku-lamp",
+      "status": "placed",
+      "unit_price": 34
+     }
+    ],
+    "transfers": []
+   },
+   "write_log": [
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-lamp",
+      "quantity": 1
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-lamp",
+      "quantity": 2
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p"
+      },
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "lamp {p[price]}, stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-lamp",
+        "quantity": 2
+       },
+       "if": "p[price] <= 42"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "lamp {p[price]}, stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-lamp",
+        "quantity": 1
+       },
+       "if": "p[price] <= 42"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "lamp {p[price]}, stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-lamp",
+        "quantity": 2
+       },
+       "if": "p[price] <= 42"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "lamp {p[price]}, stock {s[stock]}"
+   }
+  ]
+ },
+ {
+  "id": "ho-price-2",
+  "family": "ho_price",
+  "note": "A price that others change, sometimes between two reads of one turn;\n    an order is placed only while the price is at or under a limit.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the shop and tell me the price and the stock of sku-chair.",
+   "Check the sku-chair price, then its stock, then the price once more. If that last price is 62 or less, order 1. Tell me the last price and the stock at the end.",
+   "Check the sku-chair price, then its stock, then the price once more. If that last price is 62 or less, order 1. Tell me the last price and the stock at the end.",
+   "Check the sku-chair price, then its stock, then the price once more. If that last price is 62 or less, order 1. Tell me the last price and the stock at the end.",
+   "Check the sku-chair price, then its stock, then the price once more. If that last price is 62 or less, order 2. Tell me the last price and the stock at the end."
+  ],
+  "events": [
+   {
+    "at_turn": 1,
+    "kind": "set_price",
+    "sku": "sku-chair",
+    "price": 54
+   },
+   {
+    "after_call": {
+     "tool": "shop_get_price",
+     "nth": 4
+    },
+    "kind": "set_price",
+    "sku": "sku-chair",
+    "price": 57
+   },
+   {
+    "at_turn": 3,
+    "kind": "set_price",
+    "sku": "sku-chair",
+    "price": 63
+   },
+   {
+    "at_turn": 4,
+    "kind": "set_price",
+    "sku": "sku-chair",
+    "price": 72
+   }
+  ],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      60,
+      20
+     ],
+     "labels": {
+      "60": "chair",
+      "20": "stock"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      54,
+      19
+     ],
+     "labels": {
+      "54": "chair",
+      "19": "stock"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      57,
+      18
+     ],
+     "labels": {
+      "57": "chair",
+      "18": "stock"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      63,
+      18
+     ],
+     "labels": {
+      "63": "chair",
+      "18": "stock"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      72,
+      18
+     ],
+     "labels": {
+      "72": "chair",
+      "18": "stock"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 72,
+      "stock": 18
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [
+     {
+      "quantity": 1,
+      "sku": "sku-chair",
+      "status": "placed",
+      "unit_price": 54
+     },
+     {
+      "quantity": 1,
+      "sku": "sku-chair",
+      "status": "placed",
+      "unit_price": 57
+     }
+    ],
+    "transfers": []
+   },
+   "write_log": [
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-chair",
+      "quantity": 1
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-chair",
+      "quantity": 1
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p"
+      },
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "chair {p[price]}, stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-chair",
+        "quantity": 1
+       },
+       "if": "p[price] <= 62"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "chair {p[price]}, stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-chair",
+        "quantity": 1
+       },
+       "if": "p[price] <= 62"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "chair {p[price]}, stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-chair",
+        "quantity": 1
+       },
+       "if": "p[price] <= 62"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "chair {p[price]}, stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-chair",
+        "quantity": 2
+       },
+       "if": "p[price] <= 62"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "chair {p[price]}, stock {s[stock]}"
+   }
+  ]
+ },
+ {
+  "id": "ho-price-3",
+  "family": "ho_price",
+  "note": "A price that others change, sometimes between two reads of one turn;\n    an order is placed only while the price is at or under a limit.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the shop and tell me the price and the stock of sku-chair.",
+   "Check the sku-chair price, then its stock, then the price once more. If that last price is 65 or less, order 1. Tell me the last price and the stock at the end.",
+   "Check the sku-chair price, then its stock, then the price once more. If that last price is 65 or less, order 1. Tell me the last price and the stock at the end.",
+   "Check the sku-chair price, then its stock, then the price once more. If that last price is 65 or less, order 2. Tell me the last price and the stock at the end.",
+   "Check the sku-chair price, then its stock, then the price once more. If that last price is 65 or less, order 1. Tell me the last price and the stock at the end."
+  ],
+  "events": [
+   {
+    "after_call": {
+     "tool": "shop_get_price",
+     "nth": 2
+    },
+    "kind": "set_price",
+    "sku": "sku-chair",
+    "price": 63
+   },
+   {
+    "after_call": {
+     "tool": "shop_get_price",
+     "nth": 4
+    },
+    "kind": "set_price",
+    "sku": "sku-chair",
+    "price": 54
+   },
+   {
+    "at_turn": 3,
+    "kind": "set_price",
+    "sku": "sku-chair",
+    "price": 54
+   },
+   {
+    "after_call": {
+     "tool": "shop_get_price",
+     "nth": 8
+    },
+    "kind": "set_price",
+    "sku": "sku-chair",
+    "price": 57
+   }
+  ],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      60,
+      20
+     ],
+     "labels": {
+      "60": "chair",
+      "20": "stock"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      63,
+      19
+     ],
+     "labels": {
+      "63": "chair",
+      "19": "stock"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      54,
+      18
+     ],
+     "labels": {
+      "54": "chair",
+      "18": "stock"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      54,
+      16
+     ],
+     "labels": {
+      "54": "chair",
+      "16": "stock"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      57,
+      15
+     ],
+     "labels": {
+      "57": "chair",
+      "15": "stock"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 57,
+      "stock": 15
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [
+     {
+      "quantity": 1,
+      "sku": "sku-chair",
+      "status": "placed",
+      "unit_price": 54
+     },
+     {
+      "quantity": 1,
+      "sku": "sku-chair",
+      "status": "placed",
+      "unit_price": 57
+     },
+     {
+      "quantity": 1,
+      "sku": "sku-chair",
+      "status": "placed",
+      "unit_price": 63
+     },
+     {
+      "quantity": 2,
+      "sku": "sku-chair",
+      "status": "placed",
+      "unit_price": 54
+     }
+    ],
+    "transfers": []
+   },
+   "write_log": [
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-chair",
+      "quantity": 1
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-chair",
+      "quantity": 1
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-chair",
+      "quantity": 2
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-chair",
+      "quantity": 1
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p"
+      },
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "chair {p[price]}, stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-chair",
+        "quantity": 1
+       },
+       "if": "p[price] <= 65"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "chair {p[price]}, stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-chair",
+        "quantity": 1
+       },
+       "if": "p[price] <= 65"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "chair {p[price]}, stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-chair",
+        "quantity": 2
+       },
+       "if": "p[price] <= 65"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "chair {p[price]}, stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-chair",
+        "quantity": 1
+       },
+       "if": "p[price] <= 65"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "chair {p[price]}, stock {s[stock]}"
+   }
+  ]
+ },
+ {
+  "id": "ho-stock-1",
+  "family": "ho_stock",
+  "note": "Stock that runs out and comes back; an order can be refused, after\n    which the stock has to be read again.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the shop. How many sku-desk are in stock?",
+   "How many sku-desk are in stock now? If there is at least one, order 1. Then tell me the stock and whether an order was placed.",
+   "How many sku-desk are in stock now? If there is at least one, order 1. Then tell me the stock and whether an order was placed.",
+   "How many sku-desk are in stock now? If there is at least one, order 1. Then tell me the stock and whether an order was placed.",
+   "How many sku-desk are in stock now? If there is at least one, order 1. Then tell me the stock and whether an order was placed."
+  ],
+  "events": [
+   {
+    "after_call": {
+     "tool": "shop_get_stock",
+     "nth": 2
+    },
+    "kind": "set_stock",
+    "sku": "sku-desk",
+    "stock": 2
+   },
+   {
+    "at_turn": 3,
+    "kind": "set_stock",
+    "sku": "sku-desk",
+    "stock": 5
+   },
+   {
+    "at_turn": 4,
+    "kind": "set_stock",
+    "sku": "sku-desk",
+    "stock": 2
+   }
+  ],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      3
+     ],
+     "labels": {
+      "3": "desk"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      1
+     ],
+     "labels": {
+      "1": "desk"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      0
+     ],
+     "labels": {
+      "0": "desk"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      4
+     ],
+     "labels": {
+      "4": "desk"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      1
+     ],
+     "labels": {
+      "1": "desk"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 1
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [
+     {
+      "quantity": 1,
+      "sku": "sku-desk",
+      "status": "placed",
+      "unit_price": 250
+     },
+     {
+      "quantity": 1,
+      "sku": "sku-desk",
+      "status": "placed",
+      "unit_price": 250
+     },
+     {
+      "quantity": 1,
+      "sku": "sku-desk",
+      "status": "placed",
+      "unit_price": 250
+     },
+     {
+      "quantity": 1,
+      "sku": "sku-desk",
+      "status": "placed",
+      "unit_price": 250
+     }
+    ],
+    "transfers": []
+   },
+   "write_log": [
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-desk",
+      "quantity": 1
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-desk",
+      "quantity": 1
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-desk",
+      "quantity": 1
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-desk",
+      "quantity": 1
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "desk stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-desk",
+        "quantity": 1
+       },
+       "as": "o",
+       "if": "s1[stock] > 0"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "desk stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-desk",
+        "quantity": 1
+       },
+       "as": "o",
+       "if": "s1[stock] > 0"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "desk stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-desk",
+        "quantity": 1
+       },
+       "as": "o",
+       "if": "s1[stock] > 0"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "desk stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-desk",
+        "quantity": 1
+       },
+       "as": "o",
+       "if": "s1[stock] > 0"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "desk stock {s[stock]}"
+   }
+  ]
+ },
+ {
+  "id": "ho-stock-2",
+  "family": "ho_stock",
+  "note": "Stock that runs out and comes back; an order can be refused, after\n    which the stock has to be read again.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the shop. How many sku-lamp are in stock?",
+   "How many sku-lamp are in stock now? If there is at least one, order 1. Then tell me the stock and whether an order was placed.",
+   "How many sku-lamp are in stock now? If there is at least one, order 1. Then tell me the stock and whether an order was placed.",
+   "How many sku-lamp are in stock now? If there is at least one, order 1. Then tell me the stock and whether an order was placed.",
+   "How many sku-lamp are in stock now? If there is at least one, order 1. Then tell me the stock and whether an order was placed."
+  ],
+  "events": [
+   {
+    "after_call": {
+     "tool": "shop_get_stock",
+     "nth": 2
+    },
+    "kind": "set_stock",
+    "sku": "sku-lamp",
+    "stock": 1
+   },
+   {
+    "at_turn": 2,
+    "kind": "set_stock",
+    "sku": "sku-lamp",
+    "stock": 2
+   },
+   {
+    "after_call": {
+     "tool": "shop_get_stock",
+     "nth": 6
+    },
+    "kind": "set_stock",
+    "sku": "sku-lamp",
+    "stock": 1
+   },
+   {
+    "at_turn": 4,
+    "kind": "set_stock",
+    "sku": "sku-lamp",
+    "stock": 5
+   }
+  ],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      8
+     ],
+     "labels": {
+      "8": "lamp"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      0
+     ],
+     "labels": {
+      "0": "lamp"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      1
+     ],
+     "labels": {
+      "1": "lamp"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      0
+     ],
+     "labels": {
+      "0": "lamp"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      4
+     ],
+     "labels": {
+      "4": "lamp"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 4
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [
+     {
+      "quantity": 1,
+      "sku": "sku-lamp",
+      "status": "placed",
+      "unit_price": 40
+     },
+     {
+      "quantity": 1,
+      "sku": "sku-lamp",
+      "status": "placed",
+      "unit_price": 40
+     },
+     {
+      "quantity": 1,
+      "sku": "sku-lamp",
+      "status": "placed",
+      "unit_price": 40
+     },
+     {
+      "quantity": 1,
+      "sku": "sku-lamp",
+      "status": "placed",
+      "unit_price": 40
+     }
+    ],
+    "transfers": []
+   },
+   "write_log": [
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-lamp",
+      "quantity": 1
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-lamp",
+      "quantity": 1
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-lamp",
+      "quantity": 1
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-lamp",
+      "quantity": 1
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "lamp stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-lamp",
+        "quantity": 1
+       },
+       "as": "o",
+       "if": "s1[stock] > 0"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "lamp stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-lamp",
+        "quantity": 1
+       },
+       "as": "o",
+       "if": "s1[stock] > 0"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "lamp stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-lamp",
+        "quantity": 1
+       },
+       "as": "o",
+       "if": "s1[stock] > 0"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "lamp stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-lamp",
+        "quantity": 1
+       },
+       "as": "o",
+       "if": "s1[stock] > 0"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "lamp stock {s[stock]}"
+   }
+  ]
+ },
+ {
+  "id": "ho-stock-3",
+  "family": "ho_stock",
+  "note": "Stock that runs out and comes back; an order can be refused, after\n    which the stock has to be read again.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the shop. How many sku-desk are in stock?",
+   "How many sku-desk are in stock now? If there is at least one, order 1. Then tell me the stock and whether an order was placed.",
+   "How many sku-desk are in stock now? If there is at least one, order 1. Then tell me the stock and whether an order was placed.",
+   "How many sku-desk are in stock now? If there is at least one, order 1. Then tell me the stock and whether an order was placed."
+  ],
+  "events": [
+   {
+    "at_turn": 2,
+    "kind": "set_stock",
+    "sku": "sku-desk",
+    "stock": 2
+   },
+   {
+    "at_turn": 3,
+    "kind": "set_stock",
+    "sku": "sku-desk",
+    "stock": 5
+   }
+  ],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      3
+     ],
+     "labels": {
+      "3": "desk"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      2
+     ],
+     "labels": {
+      "2": "desk"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      1
+     ],
+     "labels": {
+      "1": "desk"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      4
+     ],
+     "labels": {
+      "4": "desk"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 4
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [
+     {
+      "quantity": 1,
+      "sku": "sku-desk",
+      "status": "placed",
+      "unit_price": 250
+     },
+     {
+      "quantity": 1,
+      "sku": "sku-desk",
+      "status": "placed",
+      "unit_price": 250
+     },
+     {
+      "quantity": 1,
+      "sku": "sku-desk",
+      "status": "placed",
+      "unit_price": 250
+     }
+    ],
+    "transfers": []
+   },
+   "write_log": [
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-desk",
+      "quantity": 1
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-desk",
+      "quantity": 1
+     }
+    },
+    {
+     "tool": "shop_place_order",
+     "arguments": {
+      "sku": "sku-desk",
+      "quantity": 1
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "desk stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-desk",
+        "quantity": 1
+       },
+       "as": "o",
+       "if": "s1[stock] > 0"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "desk stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-desk",
+        "quantity": 1
+       },
+       "as": "o",
+       "if": "s1[stock] > 0"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "desk stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s1"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-desk",
+        "quantity": 1
+       },
+       "as": "o",
+       "if": "s1[stock] > 0"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "desk stock {s[stock]}"
+   }
+  ]
+ },
+ {
+  "id": "ho-catalog-1",
+  "family": "ho_catalog",
+  "note": "The server changes its catalog while the task runs: a tool appears and is\n    needed at once, and the meaning of a field changes without a new version.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the shop. Which category is sku-lamp in, and what does sku-desk cost?",
+   "What category does sku-desk report, and what is the EUR rate?",
+   "The shop reorganised its categories. What category do sku-lamp and sku-pen report now?",
+   "The shop says it now offers quotes. Get a quote for 12 sku-desk and tell me the total."
+  ],
+  "events": [
+   {
+    "at_turn": 2,
+    "kind": "catalog_update",
+    "behavior": {
+     "category_codes": true
+    },
+    "describe": {
+     "shop_get_item": "Name and department code of one item."
+    }
+   },
+   {
+    "at_turn": 3,
+    "kind": "catalog_update",
+    "version": "v4",
+    "add": [
+     "shop_get_quote"
+    ]
+   }
+  ],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      "home",
+      250
+     ],
+     "labels": {
+      "home": "category",
+      "250": "desk"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      "home",
+      0.9
+     ],
+     "labels": {
+      "home": "desk",
+      "0.9": "EUR"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      "H-12",
+      "O-07"
+     ],
+     "labels": {
+      "H-12": "lamp",
+      "O-07": "pen"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      2700
+     ],
+     "labels": {
+      "2700": "total"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": []
+   },
+   "write_log": []
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "i"
+      },
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "p"
+      }
+     ]
+    ],
+    "answer": "category {i[category]}, desk {p[price]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "i"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "r"
+      }
+     ]
+    ],
+    "answer": "desk {i[category]}, EUR {r[rate]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "i"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-pen"
+       },
+       "as": "j"
+      }
+     ]
+    ],
+    "answer": "lamp {i[category]}, pen {j[category]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_quote",
+       "arguments": {
+        "sku": "sku-desk",
+        "quantity": 12
+       },
+       "as": "q"
+      }
+     ]
+    ],
+    "answer": "total {q[total]}"
+   }
+  ],
+  "catalog_ttl_ms": 0,
+  "catalog_padding": 40
+ },
+ {
+  "id": "ho-catalog-2",
+  "family": "ho_catalog",
+  "note": "The server changes its catalog while the task runs: a tool appears and is\n    needed at once, and the meaning of a field changes without a new version.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the shop. Which category is sku-lamp in, and what does sku-chair cost?",
+   "The shop says it now offers quotes. Get a quote for 12 sku-chair and tell me the total.",
+   "What category does sku-desk report, and what is the EUR rate?",
+   "The shop reorganised its categories. What category do sku-lamp and sku-pen report now?"
+  ],
+  "events": [
+   {
+    "at_turn": 1,
+    "kind": "catalog_update",
+    "version": "v2",
+    "add": [
+     "shop_get_quote"
+    ]
+   },
+   {
+    "at_turn": 3,
+    "kind": "catalog_update",
+    "behavior": {
+     "category_codes": true
+    },
+    "describe": {
+     "shop_get_item": "Name and department code of one item."
+    }
+   }
+  ],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      "home",
+      60
+     ],
+     "labels": {
+      "home": "category",
+      "60": "chair"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      648
+     ],
+     "labels": {
+      "648": "total"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      "home",
+      0.9
+     ],
+     "labels": {
+      "home": "desk",
+      "0.9": "EUR"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      "H-12",
+      "O-07"
+     ],
+     "labels": {
+      "H-12": "lamp",
+      "O-07": "pen"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": []
+   },
+   "write_log": []
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "i"
+      },
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p"
+      }
+     ]
+    ],
+    "answer": "category {i[category]}, chair {p[price]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_quote",
+       "arguments": {
+        "sku": "sku-chair",
+        "quantity": 12
+       },
+       "as": "q"
+      }
+     ]
+    ],
+    "answer": "total {q[total]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "i"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "r"
+      }
+     ]
+    ],
+    "answer": "desk {i[category]}, EUR {r[rate]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "i"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-pen"
+       },
+       "as": "j"
+      }
+     ]
+    ],
+    "answer": "lamp {i[category]}, pen {j[category]}"
+   }
+  ],
+  "catalog_ttl_ms": 0,
+  "catalog_padding": 0
+ },
+ {
+  "id": "ho-catalog-3",
+  "family": "ho_catalog",
+  "note": "The server changes its catalog while the task runs: a tool appears and is\n    needed at once, and the meaning of a field changes without a new version.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the shop. Which category is sku-lamp in, and what does sku-chair cost?",
+   "The shop says it now offers quotes. Get a quote for 10 sku-chair and tell me the total.",
+   "The shop reorganised its categories. What category do sku-lamp and sku-pen report now?",
+   "What category does sku-desk report, and what is the EUR rate?"
+  ],
+  "events": [
+   {
+    "at_turn": 1,
+    "kind": "catalog_update",
+    "version": "v2",
+    "add": [
+     "shop_get_quote"
+    ]
+   },
+   {
+    "at_turn": 2,
+    "kind": "catalog_update",
+    "behavior": {
+     "category_codes": true
+    },
+    "describe": {
+     "shop_get_item": "Name and department code of one item."
+    }
+   }
+  ],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      "home",
+      60
+     ],
+     "labels": {
+      "home": "category",
+      "60": "chair"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      540
+     ],
+     "labels": {
+      "540": "total"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      "H-12",
+      "O-07"
+     ],
+     "labels": {
+      "H-12": "lamp",
+      "O-07": "pen"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      "H-12",
+      0.9
+     ],
+     "labels": {
+      "H-12": "desk",
+      "0.9": "EUR"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": []
+   },
+   "write_log": []
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "i"
+      },
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p"
+      }
+     ]
+    ],
+    "answer": "category {i[category]}, chair {p[price]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_quote",
+       "arguments": {
+        "sku": "sku-chair",
+        "quantity": 10
+       },
+       "as": "q"
+      }
+     ]
+    ],
+    "answer": "total {q[total]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "i"
+      },
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-pen"
+       },
+       "as": "j"
+      }
+     ]
+    ],
+    "answer": "lamp {i[category]}, pen {j[category]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_item",
+       "arguments": {
+        "sku": "sku-desk"
+       },
+       "as": "i"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "r"
+      }
+     ]
+    ],
+    "answer": "desk {i[category]}, EUR {r[rate]}"
+   }
+  ],
+  "catalog_ttl_ms": 0,
+  "catalog_padding": 20
+ },
+ {
+  "id": "ho-writes-1",
+  "family": "ho_writes",
+  "note": "Several transfers, each of which may lose its request, lose its reply\n    or be turned away as busy. Each must end up applied exactly once.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank and tell me the checking balance.",
+   "Move 30 from savings to checking. If a transfer or an order reports a problem, check whether it took effect before trying again: it must end up applied exactly once. Then tell me the savings and checking balances.",
+   "Move 70 from travel to bills. If a transfer or an order reports a problem, check whether it took effect before trying again: it must end up applied exactly once. Then tell me the travel and bills balances.",
+   "Finally, tell me the checking, savings, travel and bills balances."
+  ],
+  "events": [],
+  "faults": [
+   {
+    "tool": "bank_transfer",
+    "kind": "rate_limit",
+    "on_calls": [
+     1
+    ]
+   },
+   {
+    "tool": "bank_transfer",
+    "kind": "lost_request",
+    "on_calls": [
+     3
+    ]
+   }
+  ],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      500
+     ],
+     "labels": {
+      "500": "checking"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      1170,
+      530
+     ],
+     "labels": {
+      "1170": "savings",
+      "530": "checking"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      230,
+      150
+     ],
+     "labels": {
+      "230": "travel",
+      "150": "bills"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      530,
+      1170,
+      230,
+      150
+     ],
+     "labels": {
+      "530": "checking",
+      "1170": "savings",
+      "230": "travel",
+      "150": "bills"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 150,
+     "bob-main": 900,
+     "checking": 530,
+     "rent": 0,
+     "savings": 1170,
+     "travel": 230
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": [
+     {
+      "amount": 30,
+      "source": "savings",
+      "target": "checking"
+     },
+     {
+      "amount": 70,
+      "source": "travel",
+      "target": "bills"
+     }
+    ]
+   },
+   "write_log": [
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "savings",
+      "target": "checking",
+      "amount": 30
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "travel",
+      "target": "bills",
+      "amount": 70
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "savings",
+        "target": "checking",
+        "amount": 30
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "chk",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "savings",
+        "target": "checking",
+        "amount": 30
+       },
+       "as": "tr",
+       "if": "chk[balance] == 1200",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "savings {a[balance]}, checking {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "travel",
+        "target": "bills",
+        "amount": 70
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "chk",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "travel",
+        "target": "bills",
+        "amount": 70
+       },
+       "as": "tr",
+       "if": "chk[balance] == 300",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "travel {a[balance]}, bills {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}, savings {s[balance]}, travel {t[balance]}, bills {b[balance]}"
+   }
+  ]
+ },
+ {
+  "id": "ho-writes-2",
+  "family": "ho_writes",
+  "note": "Several transfers, each of which may lose its request, lose its reply\n    or be turned away as busy. Each must end up applied exactly once.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank and tell me the checking balance.",
+   "Move 45 from savings to travel. If a transfer or an order reports a problem, check whether it took effect before trying again: it must end up applied exactly once. Then tell me the savings and travel balances.",
+   "Move 30 from travel to bills. If a transfer or an order reports a problem, check whether it took effect before trying again: it must end up applied exactly once. Then tell me the travel and bills balances.",
+   "Move 15 from savings to checking. If a transfer or an order reports a problem, check whether it took effect before trying again: it must end up applied exactly once. Then tell me the savings and checking balances.",
+   "Finally, tell me the checking, savings, travel and bills balances."
+  ],
+  "events": [],
+  "faults": [
+   {
+    "tool": "bank_transfer",
+    "kind": "lost_ack",
+    "on_calls": [
+     1
+    ]
+   },
+   {
+    "tool": "bank_transfer",
+    "kind": "lost_request",
+    "on_calls": [
+     3
+    ]
+   }
+  ],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      500
+     ],
+     "labels": {
+      "500": "checking"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      1155,
+      345
+     ],
+     "labels": {
+      "1155": "savings",
+      "345": "travel"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      315,
+      110
+     ],
+     "labels": {
+      "315": "travel",
+      "110": "bills"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      1140,
+      515
+     ],
+     "labels": {
+      "1140": "savings",
+      "515": "checking"
+     }
+    },
+    {
+     "turn": 4,
+     "contains": [
+      515,
+      1140,
+      315,
+      110
+     ],
+     "labels": {
+      "515": "checking",
+      "1140": "savings",
+      "315": "travel",
+      "110": "bills"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 110,
+     "bob-main": 900,
+     "checking": 515,
+     "rent": 0,
+     "savings": 1140,
+     "travel": 315
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": [
+     {
+      "amount": 15,
+      "source": "savings",
+      "target": "checking"
+     },
+     {
+      "amount": 30,
+      "source": "travel",
+      "target": "bills"
+     },
+     {
+      "amount": 45,
+      "source": "savings",
+      "target": "travel"
+     }
+    ]
+   },
+   "write_log": [
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "savings",
+      "target": "travel",
+      "amount": 45
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "travel",
+      "target": "bills",
+      "amount": 30
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "savings",
+      "target": "checking",
+      "amount": 15
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "savings",
+        "target": "travel",
+        "amount": 45
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "chk",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "savings",
+        "target": "travel",
+        "amount": 45
+       },
+       "as": "tr",
+       "if": "chk[balance] == 1200",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "savings {a[balance]}, travel {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "travel",
+        "target": "bills",
+        "amount": 30
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "chk",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "travel",
+        "target": "bills",
+        "amount": 30
+       },
+       "as": "tr",
+       "if": "chk[balance] == 345",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "travel {a[balance]}, bills {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "savings",
+        "target": "checking",
+        "amount": 15
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "chk",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "savings",
+        "target": "checking",
+        "amount": 15
+       },
+       "as": "tr",
+       "if": "chk[balance] == 1155",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "savings {a[balance]}, checking {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}, savings {s[balance]}, travel {t[balance]}, bills {b[balance]}"
+   }
+  ]
+ },
+ {
+  "id": "ho-writes-3",
+  "family": "ho_writes",
+  "note": "Several transfers, each of which may lose its request, lose its reply\n    or be turned away as busy. Each must end up applied exactly once.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank and tell me the checking balance.",
+   "Move 15 from checking to savings. If a transfer or an order reports a problem, check whether it took effect before trying again: it must end up applied exactly once. Then tell me the checking and savings balances.",
+   "Move 30 from checking to travel. If a transfer or an order reports a problem, check whether it took effect before trying again: it must end up applied exactly once. Then tell me the checking and travel balances.",
+   "Finally, tell me the checking, savings, travel and bills balances."
+  ],
+  "events": [],
+  "faults": [
+   {
+    "tool": "bank_transfer",
+    "kind": "lost_ack",
+    "on_calls": [
+     1
+    ]
+   }
+  ],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      500
+     ],
+     "labels": {
+      "500": "checking"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      485,
+      1215
+     ],
+     "labels": {
+      "485": "checking",
+      "1215": "savings"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      455,
+      330
+     ],
+     "labels": {
+      "455": "checking",
+      "330": "travel"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      455,
+      1215,
+      330,
+      80
+     ],
+     "labels": {
+      "455": "checking",
+      "1215": "savings",
+      "330": "travel",
+      "80": "bills"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 455,
+     "rent": 0,
+     "savings": 1215,
+     "travel": 330
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": [
+     {
+      "amount": 15,
+      "source": "checking",
+      "target": "savings"
+     },
+     {
+      "amount": 30,
+      "source": "checking",
+      "target": "travel"
+     }
+    ]
+   },
+   "write_log": [
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "checking",
+      "target": "savings",
+      "amount": 15
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "checking",
+      "target": "travel",
+      "amount": 30
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "checking",
+        "target": "savings",
+        "amount": 15
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "chk",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "checking",
+        "target": "savings",
+        "amount": 15
+       },
+       "as": "tr",
+       "if": "chk[balance] == 500",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "checking {a[balance]}, savings {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "checking",
+        "target": "travel",
+        "amount": 30
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "chk",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "checking",
+        "target": "travel",
+        "amount": 30
+       },
+       "as": "tr",
+       "if": "chk[balance] == 485",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "checking {a[balance]}, travel {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}, savings {s[balance]}, travel {t[balance]}, bills {b[balance]}"
+   }
+  ]
+ },
+ {
+  "id": "ho-session-1",
+  "family": "ho_session",
+  "note": "Sign-ins that run out on the clock, with a pause between turns.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank. Tell me the checking, savings and travel balances, one request at a time.",
+   "Move 55 from checking to savings and tell me both balances. Sign in again if the bank asks for it.",
+   "Move 55 from travel to checking and tell me both balances. Sign in again if the bank asks for it.",
+   "Sign in to the bank (same credentials) and tell me the checking and savings balances."
+  ],
+  "events": [],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      500,
+      1200,
+      300
+     ],
+     "labels": {
+      "500": "checking",
+      "1200": "savings",
+      "300": "travel"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      445,
+      1255
+     ],
+     "labels": {
+      "445": "checking",
+      "1255": "savings"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      245,
+      500
+     ],
+     "labels": {
+      "245": "travel",
+      "500": "checking"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      500,
+      1255
+     ],
+     "labels": {
+      "500": "checking",
+      "1255": "savings"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1255,
+     "travel": 245
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": [
+     {
+      "amount": 55,
+      "source": "checking",
+      "target": "savings"
+     },
+     {
+      "amount": 55,
+      "source": "travel",
+      "target": "checking"
+     }
+    ]
+   },
+   "write_log": [
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "checking",
+      "target": "savings",
+      "amount": 55
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "travel",
+      "target": "checking",
+      "amount": 55
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}, savings {s[balance]}, travel {t[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "checking",
+        "target": "savings",
+        "amount": 55
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "checking {a[balance]}, savings {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "travel",
+        "target": "checking",
+        "amount": 55
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "travel {a[balance]}, checking {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}, savings {s[balance]}"
+   }
+  ],
+  "session_ttl_s": 80,
+  "turn_gap_s": 200
+ },
+ {
+  "id": "ho-session-2",
+  "family": "ho_session",
+  "note": "Sign-ins that run out on the clock, with a pause between turns.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank. Tell me the checking, savings and travel balances, one request at a time.",
+   "Sign in to the bank (same credentials) and tell me the travel and bills balances.",
+   "Move 35 from bills to savings and tell me both balances. Sign in again if the bank asks for it.",
+   "Move 5 from checking to savings and tell me both balances. Sign in again if the bank asks for it."
+  ],
+  "events": [],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      500,
+      1200,
+      300
+     ],
+     "labels": {
+      "500": "checking",
+      "1200": "savings",
+      "300": "travel"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      300,
+      80
+     ],
+     "labels": {
+      "300": "travel",
+      "80": "bills"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      45,
+      1235
+     ],
+     "labels": {
+      "45": "bills",
+      "1235": "savings"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      495,
+      1240
+     ],
+     "labels": {
+      "495": "checking",
+      "1240": "savings"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 45,
+     "bob-main": 900,
+     "checking": 495,
+     "rent": 0,
+     "savings": 1240,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": [
+     {
+      "amount": 35,
+      "source": "bills",
+      "target": "savings"
+     },
+     {
+      "amount": 5,
+      "source": "checking",
+      "target": "savings"
+     }
+    ]
+   },
+   "write_log": [
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "bills",
+      "target": "savings",
+      "amount": 35
+     }
+    },
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "checking",
+      "target": "savings",
+      "amount": 5
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}, savings {s[balance]}, travel {t[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "travel {t[balance]}, bills {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "bills",
+        "target": "savings",
+        "amount": 35
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "bills {a[balance]}, savings {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "checking",
+        "target": "savings",
+        "amount": 5
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "checking {a[balance]}, savings {b[balance]}"
+   }
+  ],
+  "session_ttl_s": 120,
+  "turn_gap_s": 200
+ },
+ {
+  "id": "ho-session-3",
+  "family": "ho_session",
+  "note": "Sign-ins that run out on the clock, with a pause between turns.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank. Tell me the checking, savings and travel balances, one request at a time.",
+   "Sign in to the bank (same credentials) and tell me the bills and savings balances.",
+   "Sign in to the bank (same credentials) and tell me the bills and checking balances."
+  ],
+  "events": [],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      500,
+      1200,
+      300
+     ],
+     "labels": {
+      "500": "checking",
+      "1200": "savings",
+      "300": "travel"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      80,
+      1200
+     ],
+     "labels": {
+      "80": "bills",
+      "1200": "savings"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      80,
+      500
+     ],
+     "labels": {
+      "80": "bills",
+      "500": "checking"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": []
+   },
+   "write_log": []
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "t"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}, savings {s[balance]}, travel {t[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "bills {b[balance]}, savings {s[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      }
+     ]
+    ],
+    "answer": "bills {b[balance]}, checking {c[balance]}"
+   }
+  ],
+  "session_ttl_s": 120,
+  "turn_gap_s": 0
+ },
+ {
+  "id": "ho-users-1",
+  "family": "ho_users",
+  "note": "Two people use the same bank through one host, one after the other.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Sign in to the bank as alice (password pw-alice) and tell me the checking balance and the first account in the account list.",
+   "Now sign in to the bank as bob (password pw-bob) without signing out. As bob, read the bob-main balance and the checking balance, and tell me exactly what the service answers for each.",
+   "Sign in to the bank as alice (password pw-alice) and tell me the checking balance and the first account in the account list."
+  ],
+  "events": [],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      500,
+      "bills"
+     ],
+     "labels": {
+      "500": "checking",
+      "bills": "first"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      900
+     ],
+     "labels": {
+      "900": "bob-main"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      500,
+      "bills"
+     ],
+     "labels": {
+      "500": "checking",
+      "bills": "first"
+     }
+    }
+   ],
+   "served": [
+    {
+     "turn": 1,
+     "tool": "bank_get_balance",
+     "arguments": {
+      "account": "checking"
+     },
+     "refused": true
+    }
+   ],
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": []
+   },
+   "write_log": []
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      },
+      {
+       "name": "bank_list_accounts",
+       "arguments": {},
+       "as": "l"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}, first account {l[0][account]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "bob",
+        "password": "pw-bob"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bob-main"
+       },
+       "as": "m"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      }
+     ]
+    ],
+    "answer": "bob-main {m[balance]}; checking balance: {c[balance]}; error: {c[error]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "c"
+      },
+      {
+       "name": "bank_list_accounts",
+       "arguments": {},
+       "as": "l"
+      }
+     ]
+    ],
+    "answer": "checking {c[balance]}, first account {l[0][account]}"
+   }
+  ],
+  "strict_ownership": true
+ },
+ {
+  "id": "ho-users-2",
+  "family": "ho_users",
+  "note": "Two people use the same bank through one host, one after the other.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Sign in to the bank as alice (password pw-alice) and tell me the savings balance and the first account in the account list.",
+   "Now sign in to the bank as bob (password pw-bob) without signing out. As bob, read the bob-main balance and the savings balance, and tell me exactly what the service answers for each.",
+   "Sign in to the bank as alice (password pw-alice) and tell me the savings balance and the first account in the account list.",
+   "Now sign in to the bank as bob (password pw-bob) without signing out. As bob, read the bob-main balance and the savings balance, and tell me exactly what the service answers for each."
+  ],
+  "events": [],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      1200,
+      "bills"
+     ],
+     "labels": {
+      "1200": "savings",
+      "bills": "first"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      900
+     ],
+     "labels": {
+      "900": "bob-main"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      1200,
+      "bills"
+     ],
+     "labels": {
+      "1200": "savings",
+      "bills": "first"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      900
+     ],
+     "labels": {
+      "900": "bob-main"
+     }
+    }
+   ],
+   "served": [
+    {
+     "turn": 1,
+     "tool": "bank_get_balance",
+     "arguments": {
+      "account": "savings"
+     },
+     "refused": true
+    },
+    {
+     "turn": 3,
+     "tool": "bank_get_balance",
+     "arguments": {
+      "account": "savings"
+     },
+     "refused": true
+    }
+   ],
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": []
+   },
+   "write_log": []
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "c"
+      },
+      {
+       "name": "bank_list_accounts",
+       "arguments": {},
+       "as": "l"
+      }
+     ]
+    ],
+    "answer": "savings {c[balance]}, first account {l[0][account]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "bob",
+        "password": "pw-bob"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bob-main"
+       },
+       "as": "m"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "c"
+      }
+     ]
+    ],
+    "answer": "bob-main {m[balance]}; savings balance: {c[balance]}; error: {c[error]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "c"
+      },
+      {
+       "name": "bank_list_accounts",
+       "arguments": {},
+       "as": "l"
+      }
+     ]
+    ],
+    "answer": "savings {c[balance]}, first account {l[0][account]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "bob",
+        "password": "pw-bob"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bob-main"
+       },
+       "as": "m"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "savings"
+       },
+       "as": "c"
+      }
+     ]
+    ],
+    "answer": "bob-main {m[balance]}; savings balance: {c[balance]}; error: {c[error]}"
+   }
+  ],
+  "strict_ownership": true
+ },
+ {
+  "id": "ho-users-3",
+  "family": "ho_users",
+  "note": "Two people use the same bank through one host, one after the other.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Sign in to the bank as alice (password pw-alice) and tell me the travel balance and the first account in the account list.",
+   "Now sign in to the bank as bob (password pw-bob) without signing out. As bob, read the bob-main balance and the travel balance, and tell me exactly what the service answers for each."
+  ],
+  "events": [],
+  "faults": [],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      300,
+      "bills"
+     ],
+     "labels": {
+      "300": "travel",
+      "bills": "first"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      900
+     ],
+     "labels": {
+      "900": "bob-main"
+     }
+    }
+   ],
+   "served": [
+    {
+     "turn": 1,
+     "tool": "bank_get_balance",
+     "arguments": {
+      "account": "travel"
+     },
+     "refused": true
+    }
+   ],
+   "final_state": {
+    "balances": {
+     "bills": 80,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": []
+   },
+   "write_log": []
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "c"
+      },
+      {
+       "name": "bank_list_accounts",
+       "arguments": {},
+       "as": "l"
+      }
+     ]
+    ],
+    "answer": "travel {c[balance]}, first account {l[0][account]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "bob",
+        "password": "pw-bob"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bob-main"
+       },
+       "as": "m"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "c"
+      }
+     ]
+    ],
+    "answer": "bob-main {m[balance]}; travel balance: {c[balance]}; error: {c[error]}"
+   }
+  ],
+  "strict_ownership": true
+ },
+ {
+  "id": "ho-mixed-1",
+  "family": "ho_mixed",
+  "note": "Several of the above in one task: a transfer with an unclear reply, a\n    price changed by others, a dropped session, a pause between turns.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank and the shop. Tell me the travel balance and the sku-lamp price.",
+   "Move 20 from travel to bills. If a transfer or an order reports a problem, check whether it took effect before trying again: it must end up applied exactly once. Then tell me both balances.",
+   "Check the sku-lamp price again and order 1 if it is 44 or less. Tell me the price and the sku-lamp stock. Sign in again wherever needed.",
+   "What are the travel and bills balances now, and the EUR rate?"
+  ],
+  "events": [
+   {
+    "at_time": 150,
+    "kind": "set_price",
+    "sku": "sku-lamp",
+    "price": 51
+   },
+   {
+    "at_turn": 3,
+    "kind": "expire_session",
+    "app": "shop"
+   }
+  ],
+  "faults": [
+   {
+    "tool": "bank_transfer",
+    "kind": "lost_ack",
+    "on_calls": [
+     1
+    ]
+   }
+  ],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      300,
+      40
+     ],
+     "labels": {
+      "300": "travel",
+      "40": "lamp"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      280,
+      100
+     ],
+     "labels": {
+      "280": "travel",
+      "100": "bills"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      51,
+      8
+     ],
+     "labels": {
+      "51": "lamp",
+      "8": "stock"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      280,
+      100,
+      0.9
+     ],
+     "labels": {
+      "280": "travel",
+      "100": "bills",
+      "0.9": "EUR"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 100,
+     "bob-main": 900,
+     "checking": 500,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 280
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 51,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": [
+     {
+      "amount": 20,
+      "source": "travel",
+      "target": "bills"
+     }
+    ]
+   },
+   "write_log": [
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "travel",
+      "target": "bills",
+      "amount": 20
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      },
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "a"
+      },
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p"
+      }
+     ]
+    ],
+    "answer": "travel {a[balance]}, lamp {p[price]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "travel",
+        "target": "bills",
+        "amount": 20
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "chk",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "travel",
+        "target": "bills",
+        "amount": 20
+       },
+       "as": "tr",
+       "if": "chk[balance] == 300",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "travel {a[balance]}, bills {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-lamp",
+        "quantity": 1
+       },
+       "if": "p[price] <= 44"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "lamp {p[price]}, stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "travel"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "b"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "r"
+      }
+     ]
+    ],
+    "answer": "travel {a[balance]}, bills {b[balance]}, EUR {r[rate]}"
+   }
+  ],
+  "turn_gap_s": 100
+ },
+ {
+  "id": "ho-mixed-2",
+  "family": "ho_mixed",
+  "note": "Several of the above in one task: a transfer with an unclear reply, a\n    price changed by others, a dropped session, a pause between turns.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank and the shop. Tell me the bills balance and the sku-lamp price.",
+   "Move 80 from bills to checking. If a transfer or an order reports a problem, check whether it took effect before trying again: it must end up applied exactly once. Then tell me both balances.",
+   "Check the sku-lamp price again and order 1 if it is 44 or less. Tell me the price and the sku-lamp stock. Sign in again wherever needed.",
+   "What are the bills and checking balances now, and the EUR rate?"
+  ],
+  "events": [
+   {
+    "at_time": 150,
+    "kind": "set_price",
+    "sku": "sku-lamp",
+    "price": 51
+   },
+   {
+    "at_turn": 2,
+    "kind": "expire_session",
+    "app": "shop"
+   }
+  ],
+  "faults": [
+   {
+    "tool": "bank_transfer",
+    "kind": "lost_request",
+    "on_calls": [
+     1
+    ]
+   }
+  ],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      80,
+      40
+     ],
+     "labels": {
+      "80": "bills",
+      "40": "lamp"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      0,
+      580
+     ],
+     "labels": {
+      "0": "bills",
+      "580": "checking"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      51,
+      8
+     ],
+     "labels": {
+      "51": "lamp",
+      "8": "stock"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      0,
+      580,
+      0.9
+     ],
+     "labels": {
+      "0": "bills",
+      "580": "checking",
+      "0.9": "EUR"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 0,
+     "bob-main": 900,
+     "checking": 580,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 60,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 51,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": [
+     {
+      "amount": 80,
+      "source": "bills",
+      "target": "checking"
+     }
+    ]
+   },
+   "write_log": [
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "bills",
+      "target": "checking",
+      "amount": 80
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      },
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "a"
+      },
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p"
+      }
+     ]
+    ],
+    "answer": "bills {a[balance]}, lamp {p[price]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "bills",
+        "target": "checking",
+        "amount": 80
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "chk",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "bills",
+        "target": "checking",
+        "amount": 80
+       },
+       "as": "tr",
+       "if": "chk[balance] == 80",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "bills {a[balance]}, checking {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "p"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-lamp",
+        "quantity": 1
+       },
+       "if": "p[price] <= 44"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-lamp"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "lamp {p[price]}, stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "b"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "r"
+      }
+     ]
+    ],
+    "answer": "bills {a[balance]}, checking {b[balance]}, EUR {r[rate]}"
+   }
+  ],
+  "turn_gap_s": 100
+ },
+ {
+  "id": "ho-mixed-3",
+  "family": "ho_mixed",
+  "note": "Several of the above in one task: a transfer with an unclear reply, a\n    price changed by others, a dropped session, a pause between turns.",
+  "initial": {
+   "users": {
+    "alice": "pw-alice",
+    "bob": "pw-bob"
+   },
+   "bank": {
+    "accounts": {
+     "checking": {
+      "owner": "alice",
+      "balance": 500
+     },
+     "savings": {
+      "owner": "alice",
+      "balance": 1200
+     },
+     "travel": {
+      "owner": "alice",
+      "balance": 300
+     },
+     "bills": {
+      "owner": "alice",
+      "balance": 80
+     },
+     "bob-main": {
+      "owner": "bob",
+      "balance": 900
+     },
+     "rent": {
+      "owner": "landlord",
+      "balance": 0
+     }
+    }
+   },
+   "shop": {
+    "items": {
+     "sku-pen": {
+      "name": "Pen",
+      "category": "office",
+      "price": 2.5,
+      "stock": 100
+     },
+     "sku-lamp": {
+      "name": "Lamp",
+      "category": "home",
+      "price": 40,
+      "stock": 8
+     },
+     "sku-desk": {
+      "name": "Desk",
+      "category": "home",
+      "price": 250,
+      "stock": 3
+     },
+     "sku-chair": {
+      "name": "Chair",
+      "category": "office",
+      "price": 60,
+      "stock": 20
+     }
+    }
+   },
+   "ref": {
+    "rates": {
+     "EUR": 0.9,
+     "GBP": 0.8,
+     "JPY": 150
+    }
+   }
+  },
+  "turns": [
+   "Credentials for the bank and the shop: username alice, password pw-alice. Sign in to the bank and the shop. Tell me the bills balance and the sku-chair price.",
+   "Move 50 from bills to checking. If a transfer or an order reports a problem, check whether it took effect before trying again: it must end up applied exactly once. Then tell me both balances.",
+   "Check the sku-chair price again and order 1 if it is 64 or less. Tell me the price and the sku-chair stock. Sign in again wherever needed.",
+   "What are the bills and checking balances now, and the EUR rate?"
+  ],
+  "events": [
+   {
+    "at_time": 250,
+    "kind": "set_price",
+    "sku": "sku-chair",
+    "price": 71
+   },
+   {
+    "at_turn": 3,
+    "kind": "expire_session",
+    "app": "shop"
+   }
+  ],
+  "faults": [
+   {
+    "tool": "bank_transfer",
+    "kind": "lost_request",
+    "on_calls": [
+     1
+    ]
+   }
+  ],
+  "expected": {
+   "answers": [
+    {
+     "turn": 0,
+     "contains": [
+      80,
+      60
+     ],
+     "labels": {
+      "80": "bills",
+      "60": "chair"
+     }
+    },
+    {
+     "turn": 1,
+     "contains": [
+      30,
+      550
+     ],
+     "labels": {
+      "30": "bills",
+      "550": "checking"
+     }
+    },
+    {
+     "turn": 2,
+     "contains": [
+      71,
+      20
+     ],
+     "labels": {
+      "71": "chair",
+      "20": "stock"
+     }
+    },
+    {
+     "turn": 3,
+     "contains": [
+      30,
+      550,
+      0.9
+     ],
+     "labels": {
+      "30": "bills",
+      "550": "checking",
+      "0.9": "EUR"
+     }
+    }
+   ],
+   "served": [],
+   "final_state": {
+    "balances": {
+     "bills": 30,
+     "bob-main": 900,
+     "checking": 550,
+     "rent": 0,
+     "savings": 1200,
+     "travel": 300
+    },
+    "items": {
+     "sku-chair": {
+      "price": 71,
+      "stock": 20
+     },
+     "sku-desk": {
+      "price": 250,
+      "stock": 3
+     },
+     "sku-lamp": {
+      "price": 40,
+      "stock": 8
+     },
+     "sku-pen": {
+      "price": 2.5,
+      "stock": 100
+     }
+    },
+    "orders": [],
+    "transfers": [
+     {
+      "amount": 50,
+      "source": "bills",
+      "target": "checking"
+     }
+    ]
+   },
+   "write_log": [
+    {
+     "tool": "bank_transfer",
+     "arguments": {
+      "source": "bills",
+      "target": "checking",
+      "amount": 50
+     }
+    }
+   ]
+  },
+  "gold": [
+   {
+    "steps": [
+     [
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "bank",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      },
+      {
+       "name": "auth_login",
+       "arguments": {
+        "app": "shop",
+        "username": "alice",
+        "password": "pw-alice"
+       }
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "a"
+      },
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p"
+      }
+     ]
+    ],
+    "answer": "bills {a[balance]}, chair {p[price]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "bills",
+        "target": "checking",
+        "amount": 50
+       },
+       "as": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "chk",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_transfer",
+       "arguments": {
+        "source": "bills",
+        "target": "checking",
+        "amount": 50
+       },
+       "as": "tr",
+       "if": "chk[balance] == 80",
+       "if_error": "tr"
+      }
+     ],
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "b"
+      }
+     ]
+    ],
+    "answer": "bills {a[balance]}, checking {b[balance]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "shop_get_price",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "p"
+      }
+     ],
+     [
+      {
+       "name": "shop_place_order",
+       "arguments": {
+        "sku": "sku-chair",
+        "quantity": 1
+       },
+       "if": "p[price] <= 64"
+      }
+     ],
+     [
+      {
+       "name": "shop_get_stock",
+       "arguments": {
+        "sku": "sku-chair"
+       },
+       "as": "s"
+      }
+     ]
+    ],
+    "answer": "chair {p[price]}, stock {s[stock]}"
+   },
+   {
+    "steps": [
+     [
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "bills"
+       },
+       "as": "a"
+      },
+      {
+       "name": "bank_get_balance",
+       "arguments": {
+        "account": "checking"
+       },
+       "as": "b"
+      },
+      {
+       "name": "ref_get_rate",
+       "arguments": {
+        "currency": "EUR"
+       },
+       "as": "r"
+      }
+     ]
+    ],
+    "answer": "bills {a[balance]}, checking {b[balance]}, EUR {r[rate]}"
+   }
+  ],
+  "turn_gap_s": 100
+ }
+]

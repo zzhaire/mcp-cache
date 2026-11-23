@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "smoke-access-v1",
+  "bfcl_readonly": ["cat", "diff", "du", "find", "grep", "ls", "pwd", "tail", "wc"],
+  "appworld_catalog_apis": ["show_app_descriptions", "show_api_descriptions", "show_api_doc", "search_api_docs"],
+  "appworld_readonly": {
+    "supervisor": ["show_active_task", "show_profile", "show_addresses", "show_payment_cards", "show_account_passwords"],
+    "spotify": ["show_profile", "show_account", "show_genres", "search_songs", "show_song", "show_song_privates", "show_liked_songs", "search_albums", "show_album", "show_album_privates", "show_liked_albums", "show_playlist_library", "search_playlists", "show_playlist", "show_playlist_privates", "show_liked_playlists", "search_artists", "show_artist", "show_artist_following", "show_song_library", "show_album_library", "show_downloaded_songs", "show_following_artists", "show_song_reviews", "show_song_review", "show_album_reviews", "show_album_review", "show_playlist_reviews", "show_playlist_review", "show_payment_cards", "show_payment_card", "show_current_song", "show_song_queue", "show_volume", "show_recommendations", "show_premium_plans", "show_premium_subscriptions", "download_premium_subscription_receipt"],
+    "venmo": ["show_profile", "show_account", "search_users", "search_friends", "show_venmo_balance", "show_bank_transfer_history", "download_bank_transfer_receipt", "show_transaction", "show_transactions", "download_transaction_receipt", "show_transaction_comments", "show_transaction_comment", "show_payment_card", "show_payment_cards", "show_received_payment_requests", "show_sent_payment_requests", "show_social_feed", "show_notifications", "show_notifications_count"],
+    "phone": ["show_profile", "show_account", "show_contact_relationships", "search_contacts", "show_text_message_window", "search_text_messages", "show_text_message", "show_alarms", "show_alarm", "show_voice_message_window", "search_voice_messages", "show_voice_message", "get_current_date_and_time"],
+    "simple_note": ["show_profile", "show_account", "search_notes", "show_note"]
+  },
+  "appworld_neutral_apis": ["login", "complete_task"],
+  "appworld_auth_invalidation_apis": ["logout", "reset_password", "delete_account"],
+  "credential_contract": {
+    "source": "AppWorld logging_manager verifies the issued JWT and computes remaining lifetime against the benchmark clock",
+    "scopes": ["account"],
+    "environment": "isolated task; authorization changes are performed through the adapter",
+    "opaque_tokens": "never assigned an invented lifetime"
+  },
+  "retry_budget": 2,
+  "undeclared_actions": "execute; do not cache as reads",
+  "writes": "invalidate all data reads",
+  "unknown_write_outcome": "record uncertain; require reconciliation before retry"
+}

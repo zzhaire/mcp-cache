@@ -1,0 +1,97 @@
+{
+ "version": "lab-cases-v0",
+ "suite": "lab",
+ "note": "可控 MCP 实验服务器上的开发 case。全部为开发材料；正式评测前需要另建未参与调试的任务。",
+ "cases": [
+  {
+   "case_id": "lab-repeat-read",
+   "dataset": "lab",
+   "task_id": "lab-repeat-read",
+   "scenario": "repeat_read",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "lab-write-disjoint",
+   "dataset": "lab",
+   "task_id": "lab-write-disjoint",
+   "scenario": "read_write",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "lab-write-overlap",
+   "dataset": "lab",
+   "task_id": "lab-write-overlap",
+   "scenario": "read_write",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "lab-external-volatile",
+   "dataset": "lab",
+   "task_id": "lab-external-volatile",
+   "scenario": "external_change",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "lab-contract-drift",
+   "dataset": "lab",
+   "task_id": "lab-contract-drift",
+   "scenario": "external_change",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "lab-auth-expiry",
+   "dataset": "lab",
+   "task_id": "lab-auth-expiry",
+   "scenario": "auth_change",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "lab-fault-rate-limit",
+   "dataset": "lab",
+   "task_id": "lab-fault-rate-limit",
+   "scenario": "fault_recovery",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "lab-fault-lost-ack",
+   "dataset": "lab",
+   "task_id": "lab-fault-lost-ack",
+   "scenario": "fault_recovery",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "lab-failure-repeat",
+   "dataset": "lab",
+   "task_id": "lab-failure-repeat",
+   "scenario": "fault_recovery",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "lab-catalog-change",
+   "dataset": "lab",
+   "task_id": "lab-catalog-change",
+   "scenario": "catalog_change",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  }
+ ]
+}

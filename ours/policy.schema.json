@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ttl_seconds", "publish_read_results", "publish_budget_bytes", "rationale"],
+  "properties": {
+    "ttl_seconds": {"type": "integer", "minimum": 1, "maximum": 60},
+    "publish_read_results": {"type": "boolean"},
+    "publish_budget_bytes": {"type": "integer", "minimum": 0, "maximum": 4096},
+    "rationale": {"type": "string"}
+  }
+}

@@ -1,0 +1,398 @@
+{
+  "version": "scheduler-v0",
+  "status": "draft_unmeasured",
+  "note": "起点参数，不是测量结论。每个预设 = default 深度合并 overrides；合并结果必须通过 ours/scheduler.schema.json。",
+  "preset_notes": {
+    "ablation_current": "复刻当前原型（runtime.py + 选定参数 TTL 120 s、预算 8192、关闭去重）：单一 TTL、global 失效、无容量限制、按 op_id 记录失败、只给引用。与旧 runtime 的对拍见 tests/test_scheduler.py。",
+    "fixed_rules": "能力对等的强基线：与默认预设拥有同样的服务器信息和恢复能力（契约、操作键、状态查询、自动重新登录），但只用固定的常规规则：慢变类按 60 秒过期、易变类不缓存、任何写操作让整个应用的读取失效、不向模型提供任何额外状态。用来把“能力带来的收益”和“调度策略带来的收益”分开。",
+    "default": "按设计稿（MCP-Cache Design）对齐：不设容量上限和淘汰，不做闲置遗忘；决策前提供本轮仍有效读取的关键值；大结果去重关闭。容量、淘汰、遗忘、抽样校验、熔断等机制的代码保留，只在其他预设或显式覆盖时启用。",
+    "read_ahead": "publish_replacements 加上预读：turn 开始时和写之后，Host 主动重读用户点名的或智能体上一轮读过的值。用请求数换模型调用轮数。不在设计稿内。",
+    "publish_replacements": "默认预设改用新的发布规则：不再发布本轮刚读过的值，只发布模型在本轮看不到、但 Host 仍持有有效结果的读（历史被压缩掉的、其他智能体读过的、前面 turn 读过的）。不在设计稿内。"
+  },
+  "default": {
+    "version": "scheduler-v0",
+    "preset": "default",
+    "locked": {
+      "retry_max_attempts": 2,
+      "strict_never_cached": true,
+      "uncertain_write_never_replayed": true,
+      "untagged_write_min_granularity": "app",
+      "m2_cross_task": false,
+      "undeclared_read_cacheable": false
+    },
+    "ttl": {
+      "unit": "steps",
+      "static": null,
+      "slow": 24,
+      "volatile": 0,
+      "m4_completed": 64,
+      "wall_clock_cap_s": 600,
+      "fresh_class_overrides": {},
+      "catalog_default": null,
+      "adaptive": {
+        "enabled": false,
+        "verify_sample_rate": 0.1,
+        "target_stale_rate": 0.02,
+        "step": 0.5,
+        "min_scale": 0.1,
+        "max_scale": 4
+      }
+    },
+    "invalidation": {
+      "granularity": "resource",
+      "quarantine_on_unknown_write": true,
+      "on_refused_write": true
+    },
+    "coupling": {
+      "enabled_rules": [
+        "auth_upgrade_keeps_m2",
+        "catalog_change_scoped",
+        "credential_scope_superset"
+      ],
+      "catalog_auth_scoped": false,
+      "partition_by_principal": true,
+      "refresh_margin_s": 30
+    },
+    "capacity": {
+      "total_bytes": 0,
+      "share": {
+        "M1": 0.3,
+        "M2": 0.55,
+        "M3": 0.05,
+        "M4": 0.1
+      },
+      "borrow": true,
+      "max_entries": {
+        "M1": 0,
+        "M2": 0,
+        "M3": 0,
+        "M4": 0
+      },
+      "max_entry_bytes": 0
+    },
+    "admission": {
+      "min_refetch_cost_ms": 0
+    },
+    "eviction": {
+      "policy": "gdsf",
+      "w_lat": 1,
+      "w_bytes": 0.1,
+      "w_tok": 1,
+      "freq_exponent": 1
+    },
+    "forget": {
+      "idle_steps": 0,
+      "on_turn_end": "keep"
+    },
+    "tiers": {
+      "M1": "session",
+      "M2": "task",
+      "M3": "session",
+      "M4": "task"
+    },
+    "retry": {
+      "backoff_base_ms": 200,
+      "backoff_factor": 2,
+      "backoff_cap_ms": 4000,
+      "honor_retry_after": true,
+      "jitter": "full"
+    },
+    "recovery": {
+      "auth": "refresh_then_retry_once",
+      "unknown_write": "idempotent_retry",
+      "reuse_same_condition_failure": true,
+      "failure_index": "identity",
+      "allow_revalidate": false,
+      "breaker": {
+        "threshold": 0,
+        "cooldown_steps": 4
+      },
+      "failure_ages": true,
+      "failure_ttl": 4
+    },
+    "publish": {
+      "read_results": true,
+      "operations": true,
+      "mode": "key_values",
+      "select": "current_turn",
+      "budget_bytes": 8192,
+      "max_items": 12,
+      "full_max_bytes": 1024,
+      "ops_first": false,
+      "context_dedup": false,
+      "large_repeat_min_bytes": 0,
+      "failure_form": "verbatim"
+    },
+    "prefetch": {
+      "enabled": false,
+      "max_per_decision": 6,
+      "after_write": true
+    }
+  },
+  "presets": {
+    "read_heavy": {
+      "ttl": {
+        "slow": 48,
+        "volatile": 8
+      },
+      "capacity": {
+        "share": {
+          "M1": 0.2,
+          "M2": 0.7,
+          "M3": 0.03,
+          "M4": 0.07
+        },
+        "total_bytes": 4194304,
+        "max_entries": {
+          "M1": 64,
+          "M2": 512,
+          "M3": 32,
+          "M4": 256
+        },
+        "max_entry_bytes": 262144
+      },
+      "forget": {
+        "idle_steps": 64,
+        "on_turn_end": "drop_volatile"
+      },
+      "publish": {
+        "mode": "hybrid",
+        "budget_bytes": 12288,
+        "max_items": 16,
+        "large_repeat_min_bytes": 4096
+      }
+    },
+    "write_heavy": {
+      "ttl": {
+        "slow": 12,
+        "volatile": 2,
+        "adaptive": {
+          "enabled": true,
+          "verify_sample_rate": 0.2
+        }
+      },
+      "capacity": {
+        "share": {
+          "M1": 0.25,
+          "M2": 0.45,
+          "M3": 0.05,
+          "M4": 0.25
+        },
+        "total_bytes": 4194304,
+        "max_entries": {
+          "M1": 64,
+          "M2": 512,
+          "M3": 32,
+          "M4": 256
+        },
+        "max_entry_bytes": 262144
+      },
+      "forget": {
+        "idle_steps": 16,
+        "on_turn_end": "drop_volatile"
+      },
+      "publish": {
+        "ops_first": true,
+        "large_repeat_min_bytes": 4096
+      }
+    },
+    "auth_churn": {
+      "coupling": {
+        "enabled_rules": [
+          "auth_upgrade_keeps_m2",
+          "catalog_change_scoped",
+          "credential_scope_superset",
+          "credential_refresh_ahead"
+        ]
+      },
+      "capacity": {
+        "share": {
+          "M1": 0.3,
+          "M2": 0.45,
+          "M3": 0.15,
+          "M4": 0.1
+        },
+        "total_bytes": 4194304,
+        "max_entries": {
+          "M1": 64,
+          "M2": 512,
+          "M3": 32,
+          "M4": 256
+        },
+        "max_entry_bytes": 262144
+      },
+      "forget": {
+        "idle_steps": 32,
+        "on_turn_end": "drop_volatile"
+      },
+      "publish": {
+        "large_repeat_min_bytes": 4096
+      }
+    },
+    "catalog_heavy": {
+      "capacity": {
+        "total_bytes": 16777216,
+        "share": {
+          "M1": 0.5,
+          "M2": 0.4,
+          "M3": 0.03,
+          "M4": 0.07
+        },
+        "max_entries": {
+          "M1": 256,
+          "M2": 512,
+          "M3": 32,
+          "M4": 256
+        },
+        "max_entry_bytes": 2097152
+      },
+      "forget": {
+        "idle_steps": 32,
+        "on_turn_end": "drop_volatile"
+      },
+      "publish": {
+        "large_repeat_min_bytes": 4096
+      }
+    },
+    "high_latency": {
+      "eviction": {
+        "w_lat": 3,
+        "w_tok": 1
+      },
+      "retry": {
+        "backoff_base_ms": 500,
+        "backoff_cap_ms": 8000
+      },
+      "recovery": {
+        "breaker": {
+          "threshold": 2,
+          "cooldown_steps": 6
+        }
+      },
+      "capacity": {
+        "total_bytes": 4194304,
+        "max_entries": {
+          "M1": 64,
+          "M2": 512,
+          "M3": 32,
+          "M4": 256
+        },
+        "max_entry_bytes": 262144
+      },
+      "forget": {
+        "idle_steps": 32,
+        "on_turn_end": "drop_volatile"
+      },
+      "publish": {
+        "large_repeat_min_bytes": 4096
+      }
+    },
+    "ablation_current": {
+      "ttl": {
+        "unit": "seconds",
+        "static": 120,
+        "slow": 120,
+        "volatile": 120,
+        "m4_completed": 120,
+        "adaptive": {
+          "enabled": false
+        }
+      },
+      "invalidation": {
+        "granularity": "global",
+        "quarantine_on_unknown_write": false,
+        "on_refused_write": false
+      },
+      "coupling": {
+        "enabled_rules": [
+          "auth_upgrade_keeps_m2"
+        ],
+        "catalog_auth_scoped": true,
+        "partition_by_principal": false
+      },
+      "capacity": {
+        "total_bytes": 0,
+        "max_entries": {
+          "M1": 0,
+          "M2": 0,
+          "M3": 0,
+          "M4": 0
+        },
+        "max_entry_bytes": 0
+      },
+      "eviction": {
+        "policy": "lru"
+      },
+      "forget": {
+        "idle_steps": 0,
+        "on_turn_end": "keep"
+      },
+      "tiers": {
+        "M1": "task",
+        "M3": "task"
+      },
+      "retry": {
+        "backoff_base_ms": 0,
+        "backoff_cap_ms": 0,
+        "jitter": "none"
+      },
+      "recovery": {
+        "auth": "surface_only",
+        "unknown_write": "surface_only",
+        "failure_index": "operation_id",
+        "breaker": {
+          "threshold": 0,
+          "cooldown_steps": 0
+        },
+        "failure_ages": false
+      },
+      "publish": {
+        "max_items": 20,
+        "large_repeat_min_bytes": 0,
+        "failure_form": "verbatim",
+        "mode": "ref_only"
+      },
+      "prefetch": {
+        "enabled": false
+      }
+    },
+    "fixed_rules": {
+      "ttl": {
+        "unit": "seconds",
+        "slow": 60,
+        "volatile": 0,
+        "adaptive": {
+          "enabled": false
+        }
+      },
+      "invalidation": {
+        "granularity": "app"
+      },
+      "forget": {
+        "on_turn_end": "keep"
+      },
+      "publish": {
+        "read_results": false,
+        "operations": false,
+        "large_repeat_min_bytes": 0,
+        "context_dedup": false
+      },
+      "prefetch": {
+        "enabled": false
+      }
+    },
+    "read_ahead": {
+      "publish": {
+        "select": "replaces_call"
+      },
+      "prefetch": {
+        "enabled": true
+      }
+    },
+    "publish_replacements": {
+      "publish": {
+        "select": "replaces_call"
+      }
+    }
+  }
+}

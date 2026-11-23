@@ -1,0 +1,111 @@
+{
+  "version": "scheduler-v0",
+  "preset": "default",
+  "locked": {
+    "retry_max_attempts": 2,
+    "strict_never_cached": true,
+    "uncertain_write_never_replayed": true,
+    "untagged_write_min_granularity": "app",
+    "m2_cross_task": false,
+    "undeclared_read_cacheable": false
+  },
+  "ttl": {
+    "unit": "steps",
+    "static": null,
+    "slow": 24,
+    "volatile": 4,
+    "m4_completed": 64,
+    "wall_clock_cap_s": 600,
+    "fresh_class_overrides": {},
+    "catalog_default": null,
+    "adaptive": {
+      "enabled": false,
+      "verify_sample_rate": 0.1,
+      "target_stale_rate": 0.02,
+      "step": 0.5,
+      "min_scale": 0.1,
+      "max_scale": 4
+    }
+  },
+  "invalidation": {
+    "granularity": "resource",
+    "quarantine_on_unknown_write": true
+  },
+  "coupling": {
+    "enabled_rules": [
+      "auth_upgrade_keeps_m2",
+      "catalog_change_scoped",
+      "credential_scope_superset"
+    ],
+    "catalog_auth_scoped": false,
+    "partition_by_principal": true,
+    "refresh_margin_s": 30
+  },
+  "capacity": {
+    "total_bytes": 4194304,
+    "share": {
+      "M1": 0.3,
+      "M2": 0.55,
+      "M3": 0.05,
+      "M4": 0.1
+    },
+    "borrow": true,
+    "max_entries": {
+      "M1": 64,
+      "M2": 512,
+      "M3": 32,
+      "M4": 256
+    },
+    "max_entry_bytes": 262144
+  },
+  "admission": {
+    "min_refetch_cost_ms": 0
+  },
+  "eviction": {
+    "policy": "gdsf",
+    "w_lat": 1,
+    "w_bytes": 0.1,
+    "w_tok": 1,
+    "freq_exponent": 1
+  },
+  "forget": {
+    "idle_steps": 32,
+    "on_turn_end": "drop_volatile"
+  },
+  "tiers": {
+    "M1": "session",
+    "M2": "task",
+    "M3": "session",
+    "M4": "task"
+  },
+  "retry": {
+    "backoff_base_ms": 200,
+    "backoff_factor": 2,
+    "backoff_cap_ms": 4000,
+    "honor_retry_after": true,
+    "jitter": "full"
+  },
+  "recovery": {
+    "auth": "refresh_then_retry_once",
+    "unknown_write": "idempotent_retry",
+    "reuse_same_condition_failure": true,
+    "failure_index": "identity",
+    "allow_revalidate": false,
+    "breaker": {
+      "threshold": 0,
+      "cooldown_steps": 4
+    }
+  },
+  "publish": {
+    "read_results": true,
+    "operations": true,
+    "mode": "ref_only",
+    "budget_bytes": 8192,
+    "max_items": 12,
+    "full_max_bytes": 1024,
+    "ops_first": false,
+    "context_dedup": false,
+    "large_repeat_min_bytes": 4096,
+    "failure_form": "verbatim"
+  }
+}

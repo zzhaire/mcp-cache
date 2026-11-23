@@ -1,0 +1,14 @@
+{
+  "python": "/absolute/path/to/core-venv/bin/python",
+  "appworld_python": "/absolute/path/to/appworld-venv/bin/python",
+  "tau2_python": "/absolute/path/to/tau2-venv/bin/python",
+  "appworld_root": "/absolute/path/to/appworld",
+  "tau2_root": "/absolute/path/to/tau2-bench",
+  "model_cli": "/absolute/path/to/traex",
+  "model_backend": "traex",
+  "codex_cli": "/absolute/path/to/codex",
+  "claude_cli": "/absolute/path/to/claude",
+  "model_effort": null,
+  "work_dir": "/absolute/path/to/external-scratch",
+  "model_concurrency": 8
+}

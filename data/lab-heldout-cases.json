@@ -1,0 +1,223 @@
+{
+ "version": "lab-heldout-cases-v0",
+ "suite": "lab",
+ "note": "留出测试集：8 种场景结构，每种 3 个随机实例，由 data/lab_heldout.py 按固定种子生成后冻结。选参数时不得查看任何方法在这批 case 上的结果。不要手工修改。",
+ "cases": [
+  {
+   "case_id": "ho-accounts-1",
+   "dataset": "lab",
+   "task_id": "ho-accounts-1",
+   "scenario": "ho_accounts",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-accounts-2",
+   "dataset": "lab",
+   "task_id": "ho-accounts-2",
+   "scenario": "ho_accounts",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-accounts-3",
+   "dataset": "lab",
+   "task_id": "ho-accounts-3",
+   "scenario": "ho_accounts",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-price-1",
+   "dataset": "lab",
+   "task_id": "ho-price-1",
+   "scenario": "ho_price",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-price-2",
+   "dataset": "lab",
+   "task_id": "ho-price-2",
+   "scenario": "ho_price",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-price-3",
+   "dataset": "lab",
+   "task_id": "ho-price-3",
+   "scenario": "ho_price",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-stock-1",
+   "dataset": "lab",
+   "task_id": "ho-stock-1",
+   "scenario": "ho_stock",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-stock-2",
+   "dataset": "lab",
+   "task_id": "ho-stock-2",
+   "scenario": "ho_stock",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-stock-3",
+   "dataset": "lab",
+   "task_id": "ho-stock-3",
+   "scenario": "ho_stock",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-catalog-1",
+   "dataset": "lab",
+   "task_id": "ho-catalog-1",
+   "scenario": "ho_catalog",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-catalog-2",
+   "dataset": "lab",
+   "task_id": "ho-catalog-2",
+   "scenario": "ho_catalog",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-catalog-3",
+   "dataset": "lab",
+   "task_id": "ho-catalog-3",
+   "scenario": "ho_catalog",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-writes-1",
+   "dataset": "lab",
+   "task_id": "ho-writes-1",
+   "scenario": "ho_writes",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-writes-2",
+   "dataset": "lab",
+   "task_id": "ho-writes-2",
+   "scenario": "ho_writes",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-writes-3",
+   "dataset": "lab",
+   "task_id": "ho-writes-3",
+   "scenario": "ho_writes",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-session-1",
+   "dataset": "lab",
+   "task_id": "ho-session-1",
+   "scenario": "ho_session",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-session-2",
+   "dataset": "lab",
+   "task_id": "ho-session-2",
+   "scenario": "ho_session",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-session-3",
+   "dataset": "lab",
+   "task_id": "ho-session-3",
+   "scenario": "ho_session",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-users-1",
+   "dataset": "lab",
+   "task_id": "ho-users-1",
+   "scenario": "ho_users",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-users-2",
+   "dataset": "lab",
+   "task_id": "ho-users-2",
+   "scenario": "ho_users",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-users-3",
+   "dataset": "lab",
+   "task_id": "ho-users-3",
+   "scenario": "ho_users",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-mixed-1",
+   "dataset": "lab",
+   "task_id": "ho-mixed-1",
+   "scenario": "ho_mixed",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-mixed-2",
+   "dataset": "lab",
+   "task_id": "ho-mixed-2",
+   "scenario": "ho_mixed",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "ho-mixed-3",
+   "dataset": "lab",
+   "task_id": "ho-mixed-3",
+   "scenario": "ho_mixed",
+   "split": "heldout",
+   "augmented": false,
+   "augmentation": null
+  }
+ ]
+}

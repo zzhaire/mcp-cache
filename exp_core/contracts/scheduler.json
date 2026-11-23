@@ -1,0 +1,38 @@
+{
+  "version": "scheduler-contract-v0",
+  "note": "调度器使用的工具契约补充。只读判定仍以 access.json 为准；这里声明新鲜度级别、主体、公开目录与资源标签。没有声明的项目一律走保守默认值。",
+  "default_read_class": "slow",
+  "fresh_classes": {
+    "appworld": {
+      "phone.get_current_date_and_time": "strict"
+    },
+    "bfcl": {},
+    "tau2": {}
+  },
+  "isolation_note": "三个数据集的任务环境都是隔离的：除本任务自己的写操作外没有外部变化，因此默认按 slow 处理。新的 MCP 服务器注入外部变化时，应在此声明 volatile。",
+  "principal_source": {
+    "appworld": "app",
+    "bfcl": null,
+    "tau2": null
+  },
+  "app_source": {
+    "appworld": "app",
+    "bfcl": "dataset",
+    "tau2": "dataset"
+  },
+  "public_catalogs": {
+    "appworld": true
+  },
+  "resources": {
+    "note": "资源级标签模板，例如 {\"spotify.show_playlist\": {\"reads\": [\"spotify/playlist/{playlist_id}\"]}, \"spotify.add_song_to_playlist\": {\"affects\": [\"spotify/playlist/{playlist_id}\", \"spotify/playlists\"]}}。现有数据集尚未标注（设计稿 D2），resource 粒度下会退回 app 粒度。",
+    "appworld": {},
+    "bfcl": {},
+    "tau2": {}
+  },
+  "idempotency_key": {
+    "note": "支持幂等键的写工具（工具键列表）。Host 把操作标识作为幂等键随请求发出，Server 负责去重。现有三个数据集的环境都不支持，留空。",
+    "appworld": [],
+    "bfcl": [],
+    "tau2": []
+  }
+}

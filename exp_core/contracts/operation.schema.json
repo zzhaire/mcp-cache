@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["operation_id", "identity_sha256", "auth_epoch", "data_epoch", "readonly", "state", "attempts", "created_at", "updated_at", "valid_until", "retry_at", "error_code", "outcome", "history"],
+  "properties": {
+    "operation_id": {"type": "string"},
+    "identity_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "auth_epoch": {"type": "integer", "minimum": 0},
+    "data_epoch": {"type": "integer", "minimum": 0},
+    "readonly": {"type": "boolean"},
+    "state": {"enum": ["running", "failed", "uncertain", "completed"]},
+    "attempts": {"type": "integer", "minimum": 1},
+    "created_at": {"type": "number"},
+    "updated_at": {"type": "number"},
+    "valid_until": {"type": "number"},
+    "retry_at": {"type": "number"},
+    "error_code": {"type": ["string", "null"]},
+    "outcome": {"enum": [null, "not_executed", "unknown", "completed"]},
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["attempt", "state", "error_code"],
+        "properties": {
+          "attempt": {"type": "integer", "minimum": 1},
+          "state": {"enum": ["failed", "uncertain", "completed"]},
+          "error_code": {"type": ["string", "null"]}
+        }
+      }
+    }
+  }
+}

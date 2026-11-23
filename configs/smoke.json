@@ -1,0 +1,13 @@
+{
+  "profile": "smoke",
+  "purpose": "development_diagnostics",
+  "manifest": "data/scenarios-36.json",
+  "methods": ["bare", "openai", "fastmcp", "gateway", "mehan", "merchant", "ours"],
+  "split": "dev",
+  "model": "DeepSeek-V4.1-Flash",
+  "max_steps": 16,
+  "delay_ms": 20,
+  "jitter_ms": 5,
+  "seed": 20261116,
+  "workers": 1
+}

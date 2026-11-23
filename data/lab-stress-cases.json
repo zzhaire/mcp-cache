@@ -1,0 +1,277 @@
+{
+ "version": "lab-stress-cases-v0",
+ "suite": "lab",
+ "note": "M1、M2、M3、M4、时间点五类极端场景加一个复合场景，每个场景 5 条。全部为开发材料。由 data/lab_stress.py 生成，不要手工修改。",
+ "cases": [
+  {
+   "case_id": "m1-relist-large-stable",
+   "dataset": "lab",
+   "task_id": "m1-relist-large-stable",
+   "scenario": "m1_catalog",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m1-version-churn",
+   "dataset": "lab",
+   "task_id": "m1-version-churn",
+   "scenario": "m1_catalog",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m1-silent-semantic-change",
+   "dataset": "lab",
+   "task_id": "m1-silent-semantic-change",
+   "scenario": "m1_catalog",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m1-notification-noise",
+   "dataset": "lab",
+   "task_id": "m1-notification-noise",
+   "scenario": "m1_catalog",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m1-tool-retired",
+   "dataset": "lab",
+   "task_id": "m1-tool-retired",
+   "scenario": "m1_catalog",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m2-read-storm",
+   "dataset": "lab",
+   "task_id": "m2-read-storm",
+   "scenario": "m2_reads",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m2-write-interleave",
+   "dataset": "lab",
+   "task_id": "m2-write-interleave",
+   "scenario": "m2_reads",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m2-volatile-churn",
+   "dataset": "lab",
+   "task_id": "m2-volatile-churn",
+   "scenario": "m2_reads",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m2-contract-drift-repeated",
+   "dataset": "lab",
+   "task_id": "m2-contract-drift-repeated",
+   "scenario": "m2_reads",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m2-large-payloads",
+   "dataset": "lab",
+   "task_id": "m2-large-payloads",
+   "scenario": "m2_reads",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m3-relogin-storm",
+   "dataset": "lab",
+   "task_id": "m3-relogin-storm",
+   "scenario": "m3_credentials",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m3-session-churn",
+   "dataset": "lab",
+   "task_id": "m3-session-churn",
+   "scenario": "m3_credentials",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m3-logout-must-not-serve",
+   "dataset": "lab",
+   "task_id": "m3-logout-must-not-serve",
+   "scenario": "m3_credentials",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m3-user-switch",
+   "dataset": "lab",
+   "task_id": "m3-user-switch",
+   "scenario": "m3_credentials",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m3-expiry-before-write",
+   "dataset": "lab",
+   "task_id": "m3-expiry-before-write",
+   "scenario": "m3_credentials",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "mix-office-day",
+   "dataset": "lab",
+   "task_id": "mix-office-day",
+   "scenario": "mixed",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "mix-private-catalog-user-switch",
+   "dataset": "lab",
+   "task_id": "mix-private-catalog-user-switch",
+   "scenario": "mixed",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "mix-everything-churns",
+   "dataset": "lab",
+   "task_id": "mix-everything-churns",
+   "scenario": "mixed",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "mix-silent-change-under-load",
+   "dataset": "lab",
+   "task_id": "mix-silent-change-under-load",
+   "scenario": "mixed",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "mix-write-heavy-expiry-volatile",
+   "dataset": "lab",
+   "task_id": "mix-write-heavy-expiry-volatile",
+   "scenario": "mixed",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "time-midturn-price-change",
+   "dataset": "lab",
+   "task_id": "time-midturn-price-change",
+   "scenario": "timing",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "time-stock-gone-before-order",
+   "dataset": "lab",
+   "task_id": "time-stock-gone-before-order",
+   "scenario": "timing",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "time-midturn-contract-drift",
+   "dataset": "lab",
+   "task_id": "time-midturn-contract-drift",
+   "scenario": "timing",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "time-token-expires-mid-task",
+   "dataset": "lab",
+   "task_id": "time-token-expires-mid-task",
+   "scenario": "timing",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "time-think-time-between-turns",
+   "dataset": "lab",
+   "task_id": "time-think-time-between-turns",
+   "scenario": "timing",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m4-lost-request-and-lost-reply",
+   "dataset": "lab",
+   "task_id": "m4-lost-request-and-lost-reply",
+   "scenario": "m4_operations",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m4-order-without-idempotency",
+   "dataset": "lab",
+   "task_id": "m4-order-without-idempotency",
+   "scenario": "m4_operations",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m4-status-query-unavailable",
+   "dataset": "lab",
+   "task_id": "m4-status-query-unavailable",
+   "scenario": "m4_operations",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m4-consecutive-faults",
+   "dataset": "lab",
+   "task_id": "m4-consecutive-faults",
+   "scenario": "m4_operations",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  },
+  {
+   "case_id": "m4-unknown-then-session-dropped",
+   "dataset": "lab",
+   "task_id": "m4-unknown-then-session-dropped",
+   "scenario": "m4_operations",
+   "split": "dev",
+   "augmented": false,
+   "augmentation": null
+  }
+ ]
+}

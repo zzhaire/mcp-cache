@@ -1,0 +1,37 @@
+__pycache__/
+*.py[cod]
+.venv*/
+*.egg-info/
+build/
+dist/
+.DS_Store
+.claude/
+
+# Machine-specific settings
+configs/environment.local.json
+configs/environment.previous-machine.json
+
+# Run outputs, snapshots and downloaded reference code
+results/
+archive/
+backups/
+related_work/
+
+# Data taken or derived from public benchmarks (BFCL, tau2-bench, AppWorld):
+# fetch the originals and regenerate with ./run recon-build
+data/bfcl-tasks.json
+data/bfcl-oracle.json
+data/tau2-tasks.json
+data/appworld-tasks.json
+data/recon-*-tasks.json
+data/recon-*-cases.json
+
+# Working notes not part of the code release
+docs/debate-raw/
+docs/decision-debate.md
+docs/lab-server-review.md
+docs/report.md
+docs/summary.md
+docs/recon.md
+docs/adapt.md
+docs/survey-agent-tool-caching.md

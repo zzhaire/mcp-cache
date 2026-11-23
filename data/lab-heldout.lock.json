@@ -1,0 +1,16 @@
+{
+ "seed": 20261120,
+ "structures": [
+  "interleaved_accounts",
+  "price_watch",
+  "restock_race",
+  "catalog_rollout",
+  "unclear_writes",
+  "session_lifetimes",
+  "two_users",
+  "mixed_day"
+ ],
+ "variants": 3,
+ "tasks": 24,
+ "tasks_sha256": "ad441276b0f4138d940e91b180a4d39113254d2afc407fb140be407c9e9892a9"
+}

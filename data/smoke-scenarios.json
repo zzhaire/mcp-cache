@@ -1,0 +1,29 @@
+{
+  "version": "coverage-v1",
+  "selection_basis": "Select task structure and adapter capabilities before running; do not filter by score or measured reuse.",
+  "model": "DeepSeek-V4.1-Flash",
+  "network": {"delay_ms": 20, "jitter_ms": 5, "seed": 20261116},
+  "controlled": [
+    {"id": "catalog", "module": "M1", "scenario": "Repeated original AppWorld api_docs request; declared catalog version invalidation", "purpose": "verify module routing and refetch"},
+    {"id": "read", "module": "M2", "scenario": "Repeated original Spotify playlist read; write/TTL/principal invalidation", "purpose": "verify valid reuse only"},
+    {"id": "credential", "module": "M3", "scenario": "Real AppWorld login, issuer-verified JWT lifetime, repeated login, cache expiry, logout and rejected old token", "purpose": "verify auth execution path"},
+    {"id": "operation", "module": "M4", "scenario": "Original BFCL missing resource; same-operation failure reuse, condition change, pre-execution transient fault and lost write response", "purpose": "verify failure and recovery records"}
+  ],
+  "agent_tasks": [
+    {
+      "dataset": "bfcl", "task": "multi_turn_base_38",
+      "modules": ["M2", "M4"],
+      "selection_reason": "File discovery, deletion and subsequent directory read; exercises read/write validity and possible business failures.",
+      "limitations": "No credential issuer; task structure does not guarantee a cache hit."
+    },
+    {
+      "dataset": "appworld", "task": "e7a10f8_2",
+      "modules": ["M1", "M2", "M3", "M4"],
+      "selection_reason": "Find shortest Spotify playlist duration: API discovery, login, authenticated playlist/song reads and answer validation.",
+      "limitations": "Natural repetitions and failures must be observed; they are not injected into the agent run."
+    }
+  ],
+  "scoring": "Use original business oracles. Controlled repetitions and injected faults are coverage checks, not evidence of natural benchmark gains.",
+  "infrastructure_failures": "Keep reason and partial cost; stop the affected backend rather than repeatedly chasing queue rejection.",
+  "business_failures": "Retain as task failures; never replace a task because its oracle fails."
+}

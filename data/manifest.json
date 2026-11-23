@@ -1,0 +1,103 @@
+{
+  "seed": 20261116,
+  "models": [
+    "GPT-6.1-Sol",
+    "DeepSeek-V4.1-Flash"
+  ],
+  "selection": "sha256(seed:id), without performance filtering",
+  "datasets": {
+    "bfcl": {
+      "version": "bfcl-eval==2026.3.23 / BFCL_v4_multi_turn_base",
+      "dev": [
+        "multi_turn_base_176",
+        "multi_turn_base_38",
+        "multi_turn_base_81",
+        "multi_turn_base_10",
+        "multi_turn_base_133",
+        "multi_turn_base_55",
+        "multi_turn_base_185",
+        "multi_turn_base_92",
+        "multi_turn_base_173",
+        "multi_turn_base_112"
+      ],
+      "heldout": [
+        "multi_turn_base_60",
+        "multi_turn_base_149",
+        "multi_turn_base_159",
+        "multi_turn_base_116",
+        "multi_turn_base_99",
+        "multi_turn_base_64",
+        "multi_turn_base_157",
+        "multi_turn_base_167",
+        "multi_turn_base_67",
+        "multi_turn_base_163"
+      ],
+      "status": "data_and_official_oracle_available",
+      "task_file_sha256": "60fcb9477035d844c977655b7b4abf148e951d50e5cefb026514bda40521e733"
+    },
+    "appworld": {
+      "version": "appworld==0.1.3.post1 / data-0.1.0 / train",
+      "selection_group": "one task per generator; generators do not cross splits",
+      "dev": [
+        "e3d6c94_2",
+        "e7a10f8_2",
+        "d0b1f43_2",
+        "27e1026_2",
+        "34d9492_1",
+        "60d0b5b_2",
+        "22cc237_1",
+        "2a163ab_3",
+        "c901732_2",
+        "b0a8eae_3"
+      ],
+      "heldout": [
+        "ce359b5_3",
+        "ccb4494_2",
+        "76f2c72_3",
+        "29caf6f_3",
+        "6ea6792_2",
+        "07b42fd_2",
+        "afc0fce_3",
+        "287e338_1",
+        "e85d92a_1",
+        "6104387_3"
+      ],
+      "status": "environment_preflight_passed",
+      "task_file_sha256": "b8565973992a720d9b1a5d1764605900dd22a428c61b47beec415aded6fe2fa7"
+    },
+    "tau2": {
+      "source": "https://huggingface.co/datasets/HuggingFaceH4/tau2-bench-data/resolve/60e37c7a19672769a6034c45a5c8b36e7cd3768b/domains/telecom/tasks.json",
+      "revision": "60e37c7a19672769a6034c45a5c8b36e7cd3768b",
+      "domain": "telecom",
+      "dev": [
+        "[service_issue]airplane_mode_on|lock_sim_card_pin|overdue_bill_suspension|unseat_sim_card[PERSONA:Easy]",
+        "[mobile_data_issue]data_saver_mode_on|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+        "[mms_issue]airplane_mode_on|bad_network_preference|break_apn_mms_setting|break_app_both_permissions|data_mode_off|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]",
+        "[mms_issue]break_app_storage_permission|unseat_sim_card|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+        "[mobile_data_issue]airplane_mode_on|bad_network_preference[PERSONA:Hard]",
+        "[service_issue]break_apn_settings|contract_end_suspension|lock_sim_card_pin[PERSONA:Hard]",
+        "[service_issue]airplane_mode_on|unseat_sim_card[PERSONA:None]",
+        "[mobile_data_issue]airplane_mode_on|bad_network_preference|bad_vpn|data_mode_off|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+        "[mobile_data_issue]data_saver_mode_on|data_usage_exceeded[PERSONA:Easy]",
+        "[mms_issue]airplane_mode_on|bad_network_preference|break_apn_mms_setting|data_usage_exceeded[PERSONA:Hard]"
+      ],
+      "heldout": [
+        "[service_issue]airplane_mode_on|lock_sim_card_pin|unseat_sim_card[PERSONA:Hard]",
+        "[mobile_data_issue]bad_network_preference|bad_vpn|data_mode_off|data_saver_mode_on[PERSONA:None]",
+        "[mms_issue]bad_network_preference|bad_wifi_calling|break_app_sms_permission|data_mode_off|unseat_sim_card|user_abroad_roaming_enabled_off[PERSONA:Hard]",
+        "[mobile_data_issue]bad_network_preference|data_mode_off|data_saver_mode_on|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:Easy]",
+        "[mms_issue]break_app_sms_permission|data_usage_exceeded|user_abroad_roaming_disabled_on[PERSONA:None]",
+        "[mms_issue]airplane_mode_on|bad_network_preference|bad_wifi_calling|break_apn_mms_setting|break_app_both_permissions|data_mode_off|data_usage_exceeded|unseat_sim_card|user_abroad_roaming_disabled_off[PERSONA:Hard]",
+        "[mms_issue]bad_wifi_calling|break_apn_mms_setting|break_app_both_permissions|data_mode_off|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+        "[mobile_data_issue]data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:Easy]",
+        "[service_issue]airplane_mode_on|break_apn_settings|lock_sim_card_pin|overdue_bill_suspension[PERSONA:Hard]",
+        "[mms_issue]bad_network_preference|break_app_sms_permission|data_mode_off|data_usage_exceeded|user_abroad_roaming_enabled_off[PERSONA:None]"
+      ],
+      "status": "official_telecom_solo_executor_available",
+      "executor_version": "tau2-bench v1.0.1; original tools and strict EnvironmentEvaluator",
+      "executor_source": "https://github.com/sierra-research/tau2-bench/tree/v1.0.1",
+      "mode": "solo; no simulated customer or full dual-control benchmark claim",
+      "task_file_sha256": "93bbeeba13c55d1a899723c328ddcbc32c4c8c0a64b9e5a32c6753a7b3348dbc"
+    }
+  }
+}
